@@ -114,9 +114,12 @@
 	</nav>
 
 	<script type="text/javascript">
-		$("li").on("click", function () {
+		$("li:not(.nav-select)").on("click", function () {
 			$(".nav-select").removeClass("nav-select")
 			$(this).addClass("nav-select")
+		})
+		$(".nav-select").on("click", function () {
+			$(this).removeClass("nav-select")
 		})
 	</script>
 </body>
