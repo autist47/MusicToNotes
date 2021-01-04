@@ -25,7 +25,7 @@ SECRET_KEY = '(x-qz))p46-tlveb0epy)2!3m_ka75o#jpfgelrub2h36!sa&e'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['warm-garden-98195.herokuapp.com', '127.0.0.1']
 
 
 # Application definition
