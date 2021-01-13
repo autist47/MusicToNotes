@@ -1,0 +1,181 @@
+body{
+    -ms-user-select: none;
+    -moz-user-select: none;
+    -khtml-user-select: none;
+    -webkit-user-select: none;
+}
+.break {
+    flex-basis: 100%;
+    height: 0 !important;
+    margin: 0 !important;
+}
+.end-row {
+    min-width: 2px !important;
+    background: black !important;
+}
+#the-end {
+    min-width: 12px !important;
+    background-color: white;
+    border-right: solid 3px black;
+    border-left: solid 3px black;
+}
+#settings{
+    position: fixed;
+    right: 2px;
+    bottom: 2px;
+    height: 75px;
+    width: 25px;
+}
+#settings div{
+    color: #AFAFAF;
+    cursor: pointer;
+    height: 25px;
+    width: 25px;
+    border: solid 2px #AFAFAF;
+    border-radius: 5px;
+}
+#settings div span{
+    font-size: 16px;
+}
+#settings div:hover{
+    border-color: black;
+    color: black;
+}
+#setting:hover span{
+    color: black;
+}
+#setting span{
+}
+#settings_size_of_notes{
+    background-color: grey;
+    display: none;
+    width: 350px;
+    height: 300px;
+    position: fixed;
+    bottom: 2px;
+    right: 20px;
+}
+.show_settings_size_of_notes{
+    display: block !important;
+}
+.columns-notes{
+    /*background: linear-gradient(white 19%, black 19%, black 20%, white 20%,
+                                white 39%, black 39%, black 40%, white 40%, 
+                                white 59%, black 59%, black 60%, white 60%, 
+                                white 79%, black 79%, black 80%, white 80%, 
+                                white 99%, black 99%); */
+    /*background: linear-gradient(white 19%, black 20%, white 21%, 
+                                white 39%, black 40%, white 41%, 
+                                white 59%, black 60%, white 61%, 
+                                white 79%, black 80%, white 81%, 
+                                white 99%, black 100%);*/
+    background: linear-gradient(to bottom, white calc(20% - 1px), black calc(20% - 1px), black calc(20% + 1px), white calc(20% + 1px),white calc(40% - 1px), black calc(40% - 1px), black calc(40% + 1px), white calc(40% + 1px),white calc(60% - 1px), black calc(60% - 1px), black calc(60% + 1px), white calc(60% + 1px),white calc(80% - 1px), black calc(80% - 1px), black calc(80% + 1px), white calc(80% + 1px),white calc(100% - 2px), black calc(100% - 2px));
+    margin-top: 50px;
+}
+.between svg line{
+    display: block!important;
+}
+.column-in-row{
+    height: 100%;
+}
+.key{
+    background-color: transparent;
+}
+.dimension div{
+    height: 49%;
+    width: 100%;
+}
+.dimension div:nth-child(2){
+    margin-top: -4%;
+}
+#main{
+    width: 80%;
+    margin: 150px auto;
+}
+#main2{
+    width: 100%;
+    margin: auto;
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: column;
+}
+.row-stan{
+    margin-bottom: 50px;
+    width: 100%;
+    /*height: 100px;*/
+    justify-content: space-between;
+    display: flex;
+    flex-wrap: wrap;
+    background: repeating-linear-gradient(to bottom,
+            rgb(0,0,0),
+            rgb(0,0,0) 2px,
+            rgb(255,255,255) 2px,
+            rgb(255,255,255) calc(25% - 1px),
+            rgb(0,0,0) calc(25% - 1px)
+        )
+}
+.between-tact{
+    width: 3px;
+    background-color: black;
+}
+.off-flex-width{
+    flex: none !important;
+}
+.tact{
+    display: flex;
+    flex: 1;
+    justify-content: space-around;
+    border-right: solid black 3px;
+}
+.column-in-tact{
+    position: relative;
+}
+.note{
+    cursor: pointer;
+    position: absolute;
+    width: 100%;
+    height: 12.5%;
+}
+.note > svg{
+    position: relative;
+    pointer-events: none;
+}
+.note > svg > line{
+    display: none;
+}
+.reverse .note{
+    transform-origin: 50% 48%;
+    -moz-transform: scale(1, -1);
+    -webkit-transform: scale(1, -1);
+    -o-transform: scale(1, -1);
+    transform: scale(1, -1);
+    filter: FlipH;
+    -ms-filter: "FlipH";
+}
+.league{
+    height: 25px;
+    position: absolute;
+}
+.league img{
+    width: 100%;
+    height: 100%;
+}
+.league.reverse img{
+    transform: rotate(180deg);
+}
+
+.choice g{
+    fill : grey!important;
+}
+.choice line{
+    /*stroke: grey!important;*/
+}
+.choice-menu g{
+    fill : red!important;
+}
+.choice-menu line{
+    /*stroke: red!important;*/
+}
+.choice-menu div{
+    color: red!important;
+}
