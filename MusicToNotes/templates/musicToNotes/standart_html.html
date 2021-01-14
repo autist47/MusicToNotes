@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>{% block title %}Заголовок{% endblock %}</title>
+	<title>{% block title %}Стандартрный заголовок{% endblock %}</title>
 
     <!-- Jquery -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
@@ -10,10 +10,11 @@
 	<!-- <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
 	<link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap-theme.min.css">
 	<script src="http://netdna.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script> -->
-	{% block header_menu_css %}{% endblock %}
+	{% block start_js %}{% endblock %}
+	{% block start_css %}{% endblock %}
 </head>
 <body>
-	{% block header_menu_content %}{% endblock %}
+	{% block header_menu %}{% endblock %}
 
 	{% block main_content %}{% endblock %}
 
@@ -21,6 +22,7 @@
 
 	{% block footer %}{% endblock %}
 
-	{% block header_menu_js %}{% endblock %}
+	{% block end_css %}{% endblock %}
+	{% block end_js %}{% endblock %}
 </body>
 </html>

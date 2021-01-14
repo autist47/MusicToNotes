@@ -1,9 +1,24 @@
-<nav id="top-navbar">
-	<ul>
-		<li><span>Ссылка</span></li>
-		<li><span>Ссылка</span></li>
-		<li><span>Ссылка</span></li>
-		<li><span>Ссылка</span></li>
-	</ul>
-	<div class="drop-menu"></div>
-</nav>
+{% extends 'musicToNotes/standart_html.html' %}
+{% load static %}
+
+{% block start_css %}
+	{{ block.super }}
+	<link rel="stylesheet" type="text/css" href="{% static 'musicToNotes/css/header_menu.css' %}">
+{% endblock %}
+
+{% block header_menu %}
+	<nav id="top-navbar">
+		<ul>
+			<li><span>Ссылка</span></li>
+			<li><span>Ссылка</span></li>
+			<li><span>Ссылка</span></li>
+			<li><span>Ссылка</span></li>
+		</ul>
+		<div class="drop-menu"></div>
+	</nav>
+{% endblock %}
+
+{% block end_js %}
+	{{ block.super }}
+	<script type="text/javascript" src="{% static 'musicToNotes/js/header_menu.js' %}"></script>
+{% endblock %}
