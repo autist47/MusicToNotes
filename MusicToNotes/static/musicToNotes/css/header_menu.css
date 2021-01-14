@@ -27,11 +27,6 @@ body{
 	color: white;
 	background-color: #5d5dff;
 }
-.drop-menu{
-	height: 100px;
-	width: 100%;
-	background-color: gray;
-}
 .nav-select > a{
 	background-color: gray;
 	z-index: 3;
@@ -92,4 +87,13 @@ body{
 }
 #top-navbar > ul > li span:after {
 	right: -40px;
+}
+#drop-menu{
+	height: 100px;
+	width: 100%;
+	background-color: gray;
+	display: none;
+}
+.menu-on{
+	display: block !important;
 }

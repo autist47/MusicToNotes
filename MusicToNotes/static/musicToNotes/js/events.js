@@ -66,18 +66,6 @@ $(window).on("resize", function(){
     all_from_zero(json_arr)
 })
 
-$('#setting').on("click", function(){
-    $("#settings_size_of_notes").toggleClass("show_settings_size_of_notes")
-})
-
-$('#plus').on("click", function(){
-    plus()
-})
-
-$('#mines').on("click", function(){
-    mines()
-})
-
 $("#burger-button").on("click", function(){
     $(this).toggleClass("button-menu-off")
     $("#burger-menu").toggleClass("burger-menu-show")
