@@ -1,2 +1,90 @@
 {% extends 'musicToNotes/settings_size.html' %}
 {% load static %}
+{% block main_content %}
+	{% if user.is_authenticated %}
+		<p>Hi {{ user.username }}!</p>
+		<a href="{% url 'logout' %}">Log out</a>
+		{% for project in projects %}
+			<p>Название проекта = '{{ project.title }}' <a class="remove-project" data-id="{{ project.id }}">Удалить проект</a></p>
+		{% endfor %}
+		<a class="btn-md" data-toggle="modal" data-target="#myModal-1">Создать новый проект</a>
+	{% else %}
+		<p>You are not logged in.</p>
+		<p><a href="{% url 'login' %}">Log In</a> or <a href="{% url 'signup' %}">Sign Up</a></p>
+	{% endif %}
+	<div aria-labelledby="myModalLabel" class="modal fade" id="myModal-1" role="dialog" tabindex="-1">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button aria-label="Close" class="close" data-dismiss="modal" type="button">
+						<span aria-hidden="true">&times;</span>
+					</button>
+					<h4 class="modal-title" id="myModalLabel">
+						<input name="sm" placeholder="Имя проекта" type="input">
+					</h4>
+				</div>
+				<div class="modal-body">
+					<h3>Укажите все данные</h3>
+					<table class='table'>
+						<tr>
+							<td>ритм</td>
+							<td><input name="sm" type="input"></td>
+						</tr>
+						<tr>
+							<td>размерность</td>
+							<td><input name="sm" type="input"></td>
+						</tr>
+						<tr>
+							<td>инструмент</td>
+							<td><input name="sm" type="input"></td>
+						</tr>
+						<tr>
+							<td>файл с музыкой</td>
+							<td><input name="sm" type="file"></td>
+						</tr>
+					</table>
+					<input type="button" id="create-project" class="btn btn-block btn-success" value="Создать">
+				</div>
+				<div class="modal-footer">
+					<button class="btn btn-default" data-dismiss="modal" type="button">Закрыть</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	<script type="text/javascript">
+		$('#create-project').on('click', function(e){
+			e.preventDefault()
+			name = $('#myModalLabel input').val()
+			user = '{{ user }}'
+			data = {
+				name: name,
+				user: user,
+				'csrfmiddlewaretoken': '{{ csrf_token }}'
+			}
+			$.ajax({
+				type: "POST",
+				url: "{% url 'create_project' %}",
+				data: data,
+				success: function(data){
+					location.reload();
+				}
+			})
+		})
+		$('.remove-project').on('click', function(e){
+			e.preventDefault()
+			id = $(this).attr("data-id")
+			data = {
+				id: id,
+				'csrfmiddlewaretoken': '{{ csrf_token }}'
+			}
+			$.ajax({
+				type: "POST",
+				url: "{% url 'remove_project' %}",
+				data: data,
+				success: function(data){
+					location.reload();
+				}
+			})
+		})
+	</script>
+{% endblock %}
