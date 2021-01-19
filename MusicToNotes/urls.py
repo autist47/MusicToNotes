@@ -15,6 +15,8 @@ urlpatterns = [
     path('accounts/', include('django.contrib.auth.urls')),
     path('create_project/', views.create_project, name='create_project'),
     path('remove_project/', views.remove_project, name='remove_project'),
+    path('save_project/', views.save_project, name='save_project'),
+    path('open_project/<int:pr_id>/', views.open_project, name='open_project'),
 ]
 if settings.DEBUG:
 	urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

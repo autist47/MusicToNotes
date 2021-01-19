@@ -3,6 +3,8 @@ from .settings import MEDIA_URL, MEDIA_ROOT
 from django.db.models.signals import post_save, post_delete
 from django.contrib.auth.models import User
 from django.dispatch import receiver
+from .empty import empty_project
+import json
 import os
 
 class UserProfile(models.Model):
@@ -28,28 +30,35 @@ def remove_folder(sender, instance, *args, **kwards):
 
 
 class Project(models.Model):
-    title = models.CharField(max_length=100, blank=True)
-    author = models.ForeignKey(User, on_delete=models.CASCADE)
-    music_xml = models.SlugField(blank=True)
+	title = models.CharField(max_length=100, blank=True)
+	author = models.ForeignKey(User, on_delete=models.CASCADE)
+	music_xml = models.SlugField(blank=True)
 
-    def __str__(self):
-        return str(self.author)+' '+str(self.id)+' '+self.title
+	def __str__(self):
+		return str(self.author)+' '+str(self.id)+' '+self.title
+
+	def get_data(self):
+		with open(self.music_xml, "r") as read_file:
+			data = json.load(read_file)
+		return data
+
+	def save_data(self, data):
+		with open(self.music_xml, "w") as write_file:
+			json.dump(data, write_file)
 
 @receiver(post_save, sender=Project)
 def create_xml(sender, instance, created, *args, **kwards):
 	if created:
 		root_to_projects = MEDIA_URL[1:]+'users/'+str(instance.author)
-		slug_to_project = root_to_projects+'/'+str(instance.id)+'.txt'
+		slug_to_project = root_to_projects+'/'+str(instance.id)+'.json'
 
-		new_project = open(slug_to_project, 'w+')
-		new_project.write("title = "+instance.title)
-		new_project.close()
+		data = empty_project
+		with open(slug_to_project, "w+") as write_file:
+			json.dump(data, write_file)
 
 		instance.music_xml = slug_to_project
 		instance.save()
 
 @receiver(post_delete, sender=Project)
 def remove_xml(sender, instance, *args, **kwards):
-	root_to_projects = MEDIA_URL[1:]+'users/'+str(instance.author)
-	slug_to_project = root_to_projects+'/'+str(instance.id)+'.txt'
-	os.remove(slug_to_project)
+	os.remove(instance.music_xml)

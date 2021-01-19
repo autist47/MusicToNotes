@@ -1,0 +1,81 @@
+#burger-menu{
+    padding-top: 50px;
+    height: 100%;
+    position: fixed;
+    top: 0px;
+    z-index: 25;
+    background-color: blue;
+    width: 300px;
+    transition: 0.6s;
+    margin-left: -300px;
+}
+.burger-menu-show{
+    transform: translateX(300px);
+}
+#burger-menu h3{
+    cursor: pointer;
+    transition: 0.2s;
+    width: 100%;
+    padding: 4px;
+    background-color: red;
+    color: white;
+    margin: 0px;
+    margin-bottom: 2px;
+}
+#burger-menu h3:hover{
+    background-color: grey;
+    color: yellow;
+}
+
+#burger-button{
+    transition: 0.3s;
+    width: 40px;
+    height: 40px;
+    border-radius: 5px;
+    background-color: red;
+    border: solid 2px grey;
+    position: fixed;
+    top: 0px;
+    z-index: 30;
+    cursor: pointer;
+    opacity: 0.6;
+}
+#burger-button:hover{
+    border-color: black;
+    opacity: 1;
+}
+#burger-button div{
+    transition: transform 0.3s linear, margin-top 0.3s 0.3s linear;
+    height: 4px;
+    width: 80%;
+    background-color: black;
+    position: absolute;
+    margin-top: 47%;
+    margin-left: 10%;
+    border-radius: 4px;
+    transform-origin: center;
+}
+#burger-button div:nth-child(1) {
+    margin-top: calc(47% - 8px);
+}
+#burger-button div:nth-child(3) {
+    margin-top: calc(47% + 8px);
+}
+
+#burger-button.button-menu-off{
+    opacity: 1;
+    border-color: black;
+}
+#burger-button.button-menu-off div{
+    transition: margin-top 0.3s linear, transform 0.3s 0.3s linear;
+    margin-top: 47%;
+}
+.button-menu-off div:nth-child(1) {
+    transform: rotate(45deg);
+}
+.button-menu-off div:nth-child(2) {
+    transform: rotate(45deg);
+}
+.button-menu-off div:nth-child(3) {
+    transform: rotate(-45deg);
+}

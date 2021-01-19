@@ -597,7 +597,7 @@ function draw_league(){
             // top_league = Math.max(lower_start, lower_end)
             left_league = offset_start["left"] + parseInt(width_start/2)
 
-            $("#place-for-leagues").append('<div class="league'+reverse+'" style="transform-origin: '+origin+'; transform: rotate('+alfa+'deg); width: '+width_league+'px;top: '+top_league+'px;left: '+left_league+'px"><img src="img/liga.png"></div>')
+            $("#place-for-leagues").append('<div class="league'+reverse+'" style="transform-origin: '+origin+'; transform: rotate('+alfa+'deg); width: '+width_league+'px;top: '+top_league+'px;left: '+left_league+'px"><img src="../../static/musicToNotes/img/liga.png"></div>')
         } else {
             width_league1 = ($(start).parent().parent().offset()["left"] + $(start).parent().parent().width()) - (offset_start["left"] + parseInt(width_start/2))
             top_league1 = lower_start
@@ -611,8 +611,8 @@ function draw_league(){
             width_league2 = (offset_end["left"] + parseInt(width_start/2)) - left_league2
             top_league2 = lower_end
 
-            $("#place-for-leagues").append('<div class="league" style="width: '+width_league1+'px;top: '+top_league1+'px;left: '+left_league1+'px"><img src="img/liga.png"></div>')
-            $("#place-for-leagues").append('<div class="league" style="width: '+width_league2+'px;top: '+top_league2+'px;left: '+left_league2+'px"><img src="img/liga.png"></div>')
+            $("#place-for-leagues").append('<div class="league" style="width: '+width_league1+'px;top: '+top_league1+'px;left: '+left_league1+'px"><img src="../../static/musicToNotes/img/liga.png"></div>')
+            $("#place-for-leagues").append('<div class="league" style="width: '+width_league2+'px;top: '+top_league2+'px;left: '+left_league2+'px"><img src="../../static/musicToNotes/img/liga.png"></div>')
         }
     }
 }

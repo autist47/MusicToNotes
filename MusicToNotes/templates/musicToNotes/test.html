@@ -5,7 +5,7 @@
 		<p>Hi {{ user.username }}!</p>
 		<a href="{% url 'logout' %}">Log out</a>
 		{% for project in projects %}
-			<p>Название проекта = '{{ project.title }}' <a class="remove-project" data-id="{{ project.id }}">Удалить проект</a></p>
+			<p>проект - <a href="{% url 'open_project' pr_id=project.id %}">{{ project.title }}</a> <a class="remove-project" data-id="{{ project.id }}">Удалить проект</a></p>
 		{% endfor %}
 		<a class="btn-md" data-toggle="modal" data-target="#myModal-1">Создать новый проект</a>
 	{% else %}
@@ -27,20 +27,13 @@
 					<h3>Укажите все данные</h3>
 					<table class='table'>
 						<tr>
-							<td>ритм</td>
-							<td><input name="sm" type="input"></td>
-						</tr>
-						<tr>
-							<td>размерность</td>
-							<td><input name="sm" type="input"></td>
-						</tr>
-						<tr>
-							<td>инструмент</td>
-							<td><input name="sm" type="input"></td>
-						</tr>
-						<tr>
 							<td>файл с музыкой</td>
-							<td><input name="sm" type="file"></td>
+							<td>
+								<form id="form" action="" method="POST" enctype="multipart/form-data">
+									
+									<input name="file" id="id_file" type="file">
+								</form>
+							</td>
 						</tr>
 					</table>
 					<input type="button" id="create-project" class="btn btn-block btn-success" value="Создать">
@@ -54,18 +47,28 @@
 	<script type="text/javascript">
 		$('#create-project').on('click', function(e){
 			e.preventDefault()
-			name = $('#myModalLabel input').val()
-			user = '{{ user }}'
-			data = {
-				name: name,
-				user: user,
-				'csrfmiddlewaretoken': '{{ csrf_token }}'
-			}
+			var $input = $("#id_file")
+            var fd = new FormData
+
+            fd.append('file', $input.prop('files')[0])
+            fd.append('name', $('#myModalLabel input').val())
+            fd.append('user', '{{ user }}')
+            fd.append('csrfmiddlewaretoken', '{{ csrf_token }}')
+			// name = $('#myModalLabel input').val()
+			// user = '{{ user }}'
+			// data = {
+			// 	name: name,
+			// 	user: user,
+			// 	'csrfmiddlewaretoken': '{{ csrf_token }}'
+			// }
 			$.ajax({
 				type: "POST",
+				processData: false,
+            	contentType: false,
 				url: "{% url 'create_project' %}",
-				data: data,
+				data: fd,
 				success: function(data){
+					alert(data.suc)
 					location.reload();
 				}
 			})
