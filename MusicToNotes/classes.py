@@ -134,7 +134,7 @@ class AnalizData:
 
 	def plotData(self, figsize: Tuple[int, int] = (24, 10)) -> None:
 		plt.figure(figsize=figsize)
-		not_matter, self.consts.hz_scale = librosa.display.specshow(self.consts.db, sr=self.consts.sampling_rate, x_axis='time', y_axis='log', hop_length=self.consts.hop_length)
+		_, self.consts.hz_scale = librosa.display.specshow(self.consts.db, sr=self.consts.sampling_rate, x_axis='time', y_axis='log', hop_length=self.consts.hop_length)
 		plt.colorbar()
 
 	def getHzScale(self) -> None:

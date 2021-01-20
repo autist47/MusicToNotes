@@ -1,1 +1,1 @@
-web: gunicorn MusicToNotes.wsgi
+web: ./venv/Scripts/activate && gunicorn MusicToNotes.wsgi
