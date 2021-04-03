@@ -1,24 +1,66 @@
-{% extends 'musicToNotes/standart_html.html' %}
 {% load static %}
+<nav id="top-menu">
+	<div id="top-navbar">
+		<!-- <img id="logo" src="{% static img %}"> -->
+		
+		<div id="logo-wrapper">
+			<div id="logo"></div>
+		</div>
 
-{% block start_css %}
-	{{ block.super }}
-	<link rel="stylesheet" type="text/css" href="{% static 'musicToNotes/css/header_menu.css' %}">
-{% endblock %}
+		<div id="block-menu-wrapper">
+			<div id="block-menu">
+				<div id="project-title">
+					<input type="text" value="Имя проекта">
+				</div>
+				<div id="list-menu">
+					<div>
+						<div>Файл</div>
+					</div>
+					<div>
+						<div>Правка</div>
+					</div>
+					<div>
+						<div>Редактор</div>
+					</div>
+				</div>
+			</div>
+		</div>
 
-{% block header_menu %}
-	<nav id="top-navbar">
-		<ul>
-			<li><span>Ссылка</span></li>
-			<li><span>Ссылка</span></li>
-			<li><span>Ссылка</span></li>
-			<li><span>Ссылка</span></li>
-		</ul>
-		<div id="drop-menu"></div>
-	</nav>
-{% endblock %}
+		<div id="recording-block-wrapper">
+			<div id="recording-block">
+				<div id="timer">00:00</div>
+				<div id="recording-btn" class="start"></div>
+				<div id="recording-volume"></div>
+			</div>
+		</div>
 
-{% block end_js %}
-	{{ block.super }}
-	<script type="text/javascript" src="{% static 'musicToNotes/js/header_menu.js' %}"></script>
-{% endblock %}
+		<div id="size-set-wrapper">
+			<div id="size-set">
+				<div>
+					<div>
+						<img src="{% static 'musicToNotes/img/plus.png' %}">
+					</div>
+					<input type="range" min="20" max="200" oninput="" value="75">
+					<div>
+						<img src="{% static 'musicToNotes/img/plus.png' %}">
+					</div>
+				</div>
+				<div>
+					<div>
+						<img src="{% static 'musicToNotes/img/plus.png' %}">
+					</div>
+					<input type="range" min="20" max="200" oninput="" value="75">
+					<div>
+						<img src="{% static 'musicToNotes/img/plus.png' %}">
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div id="profile-wrapper">
+			<div id="profile">
+				
+			</div>
+		</div>
+	</div>
+</nav>

@@ -202,19 +202,34 @@ function all_from_zero(array_json=json_arr){
                     if ((row+'').includes('between')){
                         betw = ' between'
                     }
-                    $($(".column-in-tact")[$(".column-in-tact").length - 1]).append('<div class="note on-'+row+'-row'+betw+'" data-row="'+row+'" data-length="'+length+'" data-type="note">'+notes_svg[array_json[ind_key]["content"][ind_tact][ind_col][ind_elem+1]["svg_key"]]+'</div>')
-                    all_pos_y += row + ','
+                    // $($(".column-in-tact")[$(".column-in-tact").length - 1]).append('<div class="note on-'+row+'-row'+betw+'" data-row="'+row+'" data-length="'+length+'" data-type="note">'+notes_svg[array_json[ind_key]["content"][ind_tact][ind_col][ind_elem+1]["svg_key"]]+'</div>')
+                    // all_pos_y += row + ','
+                    // console.log(row, all_pos_y)
+                    $($(".column-in-tact")[$(".column-in-tact").length - 1]).attr("all_pos_y", all_pos_y + '1')
+                    $($(".column-in-tact")[$(".column-in-tact").length - 1]).append('<div class="note on-1-row" data-row="1" data-length="'+length+'" data-type="note">'+notes_svg[array_json[ind_key]["content"][ind_tact][ind_col][ind_elem+1]["svg_key"]]+'</div>')
+                    // console.log(
+                    //     $(
+                    //         $(
+                    //             $(".column-in-tact")
+                    //                 [$(".column-in-tact").length - 1]
+                    //         ).children()
+                    //         [
+                    //             $(
+                    //                 $(".column-in-tact")
+                    //                     [$(".column-in-tact").length - 1]
+                    //                 ).children().length - 1
+                    //         ]
+                    //     )
+                    // )
+                    all_pos_y += change_pos_y($($($(".column-in-tact")[$(".column-in-tact").length - 1]).children()[$($(".column-in-tact")[$(".column-in-tact").length - 1]).children().length - 1]), row) + ','
+                    $($(".column-in-tact")[$(".column-in-tact").length - 1]).attr("all_pos_y", all_pos_y.slice(0, -1))
                 }
-                $($(".column-in-tact")[$(".column-in-tact").length - 1]).attr("all_pos_y", all_pos_y.slice(0, -1))
+                // $($(".column-in-tact")[$(".column-in-tact").length - 1]).attr("all_pos_y", all_pos_y.slice(0, -1))
                 $($(".column-in-tact")[$(".column-in-tact").length - 1]).addClass(reverse)
             }
         }
     }
-    while (free >= 0){
-        $($(".row-stan")[$(".row-stan").length - 1]).append('<div class="column-in-row tact tact-after-'+ind_dimension+' off-flex-width zero"><div class="column-in-tact zero" data-length="'+dimension_now[0]+'/'+dimension_now[1]+'"><div class="note zero on-3-row">пауза</div></div></div>')
-        free -= $($(".column-in-row")[$(".column-in-row").length - 1]).width()
-    }
-    $($(".column-in-row")[$(".column-in-row").length - 1]).remove()
+    $($(".row-stan")[$(".row-stan").length - 1]).append('<div class="column-in-row tact tact-after-'+ind_dimension+' off-flex-width zero">'+pauses_svg["full"]+'</div>')
     $($(".column-in-row")[$(".column-in-row").length - 1]).css("border-right", "solid black 6px")
     $($(".row-stan")[$(".row-stan").length - 1]).css("border-right", "solid black 6px")
     $($(".row-stan")[$(".row-stan").length - 1]).css("padding-right", "4px")
@@ -300,22 +315,15 @@ function new_all_from_zero(array_json=json_arr){
                     if ((row+'').includes('between')){
                         betw = ' between'
                     }
-                    new_note = $('<div class="note on-1-row'+betw+'" data-row="1" data-length="'+length+'" data-type="note">'+notes_svg[array_json[ind_key]["content"][ind_tact][ind_col][ind_elem+1]["svg_key"]]+'</div>')
-                    $($(".column-in-tact")[$(".column-in-tact").length - 1]).append(new_note)
+                    $($(".column-in-tact")[$(".column-in-tact").length - 1]).append('<div class="note on-'+row+'-row'+betw+'" data-row="'+row+'" data-length="'+length+'" data-type="note">'+notes_svg[array_json[ind_key]["content"][ind_tact][ind_col][ind_elem+1]["svg_key"]]+'</div>')
                     all_pos_y += row + ','
-                    $($(".column-in-tact")[$(".column-in-tact").length - 1]).attr("all_pos_y", all_pos_y.slice(0, -2)+"1")
-                    new_change_pos_y($(new_note), row)
                 }
-                
+                $($(".column-in-tact")[$(".column-in-tact").length - 1]).attr("all_pos_y", all_pos_y.slice(0, -1))
                 $($(".column-in-tact")[$(".column-in-tact").length - 1]).addClass(reverse)
             }
         }
     }
-    while (free >= 0){
-        $($(".row-stan")[$(".row-stan").length - 1]).append('<div class="column-in-row tact tact-after-'+ind_dimension+' off-flex-width zero"><div class="column-in-tact zero" data-length="'+dimension_now[0]+'/'+dimension_now[1]+'"><div class="note zero on-3-row">пауза</div></div></div>')
-        free -= $($(".column-in-row")[$(".column-in-row").length - 1]).width()
-    }
-    $($(".column-in-row")[$(".column-in-row").length - 1]).remove()
+    $($(".row-stan")[$(".row-stan").length - 1]).append('<div class="column-in-row tact tact-after-'+ind_dimension+' off-flex-width zero">'+pauses_svg["full"]+'</div>')
     $($(".column-in-row")[$(".column-in-row").length - 1]).css("border-right", "solid black 6px")
     $($(".row-stan")[$(".row-stan").length - 1]).css("border-right", "solid black 6px")
     $($(".row-stan")[$(".row-stan").length - 1]).css("padding-right", "4px")
@@ -441,6 +449,7 @@ function change_pos_y(obj, offset=1){
     }
     were_changes = true
     close_now_menu()
+    return new_class
 }
 
 function new_change_pos_y(obj, offset=1){
@@ -617,235 +626,35 @@ function draw_league(){
     }
 }
 
-function relocate(from_obj=some_clicked, note_length=[1, 8], to_next=true, to_obj=null){
-    if (to_next){
-        for (let i=$(".tact").index($($(from_obj).parent()).parent()); to_obj===null && i < $(".tact:not('.zero')").length-1 || to_obj!==null && i <= $(".tact").index($(to_obj)); i++){
-            flag = false
-            j = $($(".tact")[i]).children().length - 1
-            len_for_del = parseFloat(note_length[0]/note_length[1])
+function sizePic() {
+    size = $("#settings_size_of_notes input").val();
+    img = $("#settings_size_of_notes p span");
+    img.html(''+size);
+    $("#settings_size_of_notes svg").width(size+'px');
+    $("#settings_size_of_notes svg").height(size+'px');
 
-            while(j >= 0 && !flag) {
-                this_len = $($($(".tact")[i]).children()[j]).attr("data-length").split('/')
-                this_len_num = parseFloat(this_len[0]/this_len[1])
+    height = k_size_height*size*width_present
 
-                last_len = $($($(".tact")[i+1]).children()[0]).attr("data-length").split('/')
-                last_len_num = parseFloat(last_len[0]/last_len[1])
-                new_val_0 = (""+(this_len_num + last_len_num)).split('.')
-                if (new_val_0[0] == '1') {
-                    M = 1;
-                    N = 1
-                } else {
-                    new_val_0 = new_val_0[1]
-                    m = Number(new_val_0)
-                    n = 10**new_val_0.length
-                    M = m
-                    N = n
-                    for (let ii = 2; ii <= m; ii++) {
-                        if (m % ii === 0 &&  n % ii === 0)
-                            M = m / ii, N = n / ii;
-                    }
-                }
-                if (this_len_num - len_for_del < 0){
-                    if ($($($(".tact")[i]).children()[j]).attr("all_pos_y") == $($($(".tact")[i+1]).children()[0]).attr("all_pos_y") && $($($(".tact")[i]).children()[j]).attr("league") && $($($(".tact")[i]).children()[j]).attr("league") != "end"){
-                        for (let ind_note = 0; ind_note < $($($(".tact")[i+1]).children()[0]).length; ind_note++) {
-                            change_note($($($($(".tact")[i+1]).children()[0]).children()[ind_note]), M+'/'+N)
-                        }
-                        if ($($($(".tact")[i]).children()[j]).attr("league") == "start" && $($($(".tact")[i+1]).children()[0]).attr("league") == "end"){
-                            $($($(".tact")[i+1]).children()[0]).removeAttr("league")
-                        } else if ($($($(".tact")[i]).children()[j]).attr("league") == "start"){
-                            $($($(".tact")[i+1]).children()[0]).removeAttr("league", "start")
-                        }
-                        $($($(".tact")[i]).children()[j]).remove()
-                    } else{
-                        $($(".tact")[i+1]).prepend($($($(".tact")[i]).children()[j]))
-                    }
-                    len_for_del -= this_len_num
-                } else if(this_len_num - len_for_del == 0){
-                    if ($($($(".tact")[i]).children()[j]).attr("all_pos_y") == $($($(".tact")[i+1]).children()[0]).attr("all_pos_y") && $($($(".tact")[i]).children()[j]).attr("league") && $($($(".tact")[i]).children()[j]).attr("league") != "end"){
-                        for (let ind_note = 0; ind_note < $($($(".tact")[i+1]).children()[0]).length; ind_note++) {
-                            change_note($($($($(".tact")[i+1]).children()[0]).children()[ind_note]), M+'/'+N)
-                        }
-                        if ($($($(".tact")[i]).children()[j]).attr("league") == "start" && $($($(".tact")[i+1]).children()[0]).attr("league") == "end"){
-                            $($($(".tact")[i+1]).children()[0]).removeAttr("league")
-                        } else if ($($($(".tact")[i]).children()[j]).attr("league") == "start"){
-                            $($($(".tact")[i+1]).children()[0]).removeAttr("league", "start")
-                        }
-                        $($($(".tact")[i]).children()[j]).remove()
-                    } else{
-                        $($(".tact")[i+1]).prepend($($($(".tact")[i]).children()[j]))
-                    }
-                    flag = true
-                } else {
-                    new_val_0 = (""+(this_len_num - len_for_del)).split('.')[1]
-                    m = Number(new_val_0)
-                    n = 10**new_val_0.length
-                    M = m
-                    N = n
-                    for (let ii = 2; ii <= m; ii++) {
-                        if (m % ii === 0 &&  n % ii === 0)
-                            M = m / ii, N = n / ii;
-                    }
-                    for (let ind_note = 0; ind_note < $($($(".tact")[i]).children()[j]).children().length; ind_note++) {
-                        change_note($($($($(".tact")[i]).children()[j]).children()[ind_note]), M+'/'+N)
-                    }
-                    if (!$($($(".tact")[i]).children()[j]).attr("league")){
-                        $($($(".tact")[i]).children()[j]).attr("league", "start")
-                        next_league = "end"
-                    } else if ($($($(".tact")[i]).children()[j]).attr("league") == "start"){
-                        next_league = "middle"
-                    } else {
-                        next_league = $($($(".tact")[i]).children()[j]).attr("league")
-                        $($($(".tact")[i]).children()[j]).attr("league", "middle")
-                    }
-                    // change_note($($($(".tact")[i]).children()[j]), M+'/'+N)
+    style_columns_notes = '.column-in-row{\nheight: '+(height)+'px;\n}\n.column-in-tact{\n\tmin-width: '+(size*width_present)+'px;\n}\n\n'
+    $("#style-size").html(style_columns_notes)
 
-                    new_val_0 = (""+(len_for_del)).split('.')[1]
-                    m = Number(new_val_0)
-                    n = 10**new_val_0.length
-                    M = m
-                    N = n
-                    for (let i = 2; i <= m; i++) {
-                        if (m % i === 0 &&  n % i === 0)
-                            M = m / i, N = n / i;
-                    }
-                    str_length = M+'/'+N
+    width = height/2*0.6875
 
-                    zero_has = ''
-                    if ( $($($(".tact")[i]).children()[j]).hasClass("zero") ){
-                        zero_has = ' zero'
-                    }
-                    reverse_has = ''
-                    if ( $($($(".tact")[i]).children()[j]).hasClass("reverse") ){
-                        reverse_has = ' reverse'
-                    }
-                    $('<div class="column-in-tact'+zero_has+reverse_has+'" data-length="'+str_length+'" all_pos_y="'+$($($(".tact")[i]).children()[j]).attr("all_pos_y")+'" league="'+next_league+'"></div>').insertBefore($($(".tact")[i+1]).children()[0])
-                    for (let ind_note = 0; ind_note < $($($(".tact")[i]).children()[j]).children().length; ind_note++) {
-                        let row = $($($($(".tact")[i]).children()[j]).children()[ind_note]).attr("data-row")
-                        $($($(".tact")[i+1]).children()[0]).append($('<div class="note on-'+row+'-row" data-row="'+row+'" data-length="'+str_length+'">'+notes_svg[str_length]+'</div>'))
-                    }
-                    flag = true
-                }
-                j--
-            }
-        }
+    x = size*width_present
+    font_size = 0.00000877893884756*x**3+(-0.00194963366125123)*x**2+0.74720753726819567*x-1.88786664507642854
+    margin_top = 0.00071429*x**2+0.07142857*x+3.71428571
+
+    style_margin = '.dimension{\nwidth: '+width+'px;\n}\n.dimension div{\nfont-size: '+font_size+'px;\n}\n.dimension div:nth-child(1){\nmargin-top: -'+margin_top+'px\n}\n.key{\nwidth: '+(50*width_present)+'px\n}\n'
+    $("#style-for-pos_y-of-notes").html(style_margin)
+    all_from_zero(json_arr)
+    if (size*width_present < 40){
+        $("#main2").addClass('thin-line')
     } else {
-        innd = to_obj===null && $(".tact:not('.zero')").length-1 || to_obj!==null && $(".tact").index($(to_obj))
-        $($(".tact")[innd]).append('<div class="column-in-tact zero" data-length="'+note_length[0]+'/'+note_length[1]+'"><div class="note zero on-3-row" data-row="3" data-length="'+note_length[0]+'/'+note_length[1]+'">пауза</div></div>')
-        for (let i=to_obj===null && $(".tact:not('.zero')").length-1 || to_obj!==null && $(".tact").index($(to_obj)); i > $(".tact").index($($(from_obj).parent()).parent()); i--){
-
-            flag = false
-            j = 0
-            len_for_del = parseFloat(note_length[0]/note_length[1])
-
-            while($($(".tact")[i]).children().length != 0 && !flag) {
-                this_len = $($($(".tact")[i]).children()[0]).attr("data-length").split('/')
-                this_len_num = parseFloat(this_len[0]/this_len[1])
-
-                last_len = $($($(".tact")[i-1]).children()[$($(".tact")[i-1]).children().length - 1]).attr("data-length").split('/')
-                last_len_num = parseFloat(last_len[0]/last_len[1])
-                new_val_0 = (""+(this_len_num + last_len_num)).split('.')
-                if (new_val_0[0] == '1') {
-                    M = 1;
-                    N = 1
-                } else {
-                    new_val_0 = new_val_0[1]
-                    m = Number(new_val_0)
-                    n = 10**new_val_0.length
-                    M = m
-                    N = n
-                    for (let i = 2; i <= m; i++) {
-                        if (m % i === 0 &&  n % i === 0)
-                            M = m / i, N = n / i;
-                    }
-                }
-
-                if (this_len_num - len_for_del < 0){
-                    if ($($($(".tact")[i]).children()[j]).attr("all_pos_y") == $($($(".tact")[i-1]).children()[$($(".tact")[i-1]).children().length-1]).attr("all_pos_y") && $($($(".tact")[i]).children()[j]).attr("league") && $($($(".tact")[i]).children()[j]).attr("league") != "start"){
-                        for (let ind_note = 0; ind_note < $($($(".tact")[i-1]).children()[$($(".tact")[i-1]).children().length-1]).length; ind_note++) {
-                            change_note($($($($(".tact")[i-1]).children()[$($(".tact")[i-1]).children().length-1]).children()[ind_note]), M+'/'+N)
-                        }
-                        if ($($($(".tact")[i]).children()[j]).attr("league") == "end" && $($($(".tact")[i-1]).children()[$($(".tact")[i-1]).children().length-1]).attr("league") == "start"){
-                            $($($(".tact")[i-1]).children()[$($(".tact")[i-1]).children().length-1]).removeAttr("league")
-                        } else if ($($($(".tact")[i]).children()[j]).attr("league") == "end"){
-                            $($($(".tact")[i-1]).children()[$($(".tact")[i-1]).children().length-1]).removeAttr("league", "end")
-                        }
-                        $($($(".tact")[i]).children()[j]).remove()
-                    } else{
-                        $($(".tact")[i-1]).append($($($(".tact")[i]).children()[j]))
-                    }
-                    len_for_del -= this_len_num
-                } else if(this_len_num - len_for_del == 0){
-                    if ($($($(".tact")[i]).children()[j]).attr("all_pos_y") == $($($(".tact")[i-1]).children()[$($(".tact")[i-1]).children().length-1]).attr("all_pos_y") && $($($(".tact")[i]).children()[j]).attr("league") && $($($(".tact")[i]).children()[j]).attr("league") != "start"){
-                        for (let ind_note = 0; ind_note < $($($(".tact")[i-1]).children()[$($(".tact")[i-1]).children().length-1]).length; ind_note++) {
-                            change_note($($($($(".tact")[i-1]).children()[$($(".tact")[i-1]).children().length-1]).children()[ind_note]), M+'/'+N)
-                        }
-                        if ($($($(".tact")[i]).children()[j]).attr("league") == "end" && $($($(".tact")[i-1]).children()[$($(".tact")[i-1]).children().length-1]).attr("league") == "start"){
-                            $($($(".tact")[i-1]).children()[$($(".tact")[i-1]).children().length-1]).removeAttr("league")
-                        } else if ($($($(".tact")[i]).children()[j]).attr("league") == "end"){
-                            $($($(".tact")[i-1]).children()[$($(".tact")[i-1]).children().length-1]).removeAttr("league", "end")
-                        }
-                        $($($(".tact")[i]).children()[j]).remove()
-                    } else {
-                        $($(".tact")[i-1]).append($($($(".tact")[i]).children()[j]))
-                    }
-                    flag = true
-                } else {
-                    new_val_0 = (""+(this_len_num - len_for_del)).split('.')[1]
-                    m = Number(new_val_0)
-                    n = 10**new_val_0.length
-                    M = m
-                    N = n
-                    for (let i = 2; i <= m; i++) {
-                        if (m % i === 0 &&  n % i === 0)
-                            M = m / i, N = n / i;
-                    }
-                    for (let ind_note = 0; ind_note < $($($(".tact")[i]).children()[j]).children().length; ind_note++) {
-                        change_note($($($($(".tact")[i]).children()[j]).children()[ind_note]), M+'/'+N)
-                    }
-                    // $($($(".tact")[i]).children()[j]).attr("league", "end")
-
-                    if (!$($($(".tact")[i]).children()[j]).attr("league")){
-                        $($($(".tact")[i]).children()[j]).attr("league", "end")
-                        prev_league = "start"
-                    } else if($($($(".tact")[i]).children()[j]).attr("league") == "end"){
-                        prev_league = "middle"
-                    } else {
-                        prev_league = $($($(".tact")[i]).children()[j]).attr("league")
-                        $($($(".tact")[i]).children()[j]).attr("league", "middle")
-                    }
-                    // change_note($($($(".tact")[i]).children()[j]), M+'/'+N)
-
-                    new_val_0 = (""+(len_for_del)).split('.')[1]
-                    m = Number(new_val_0)
-                    n = 10**new_val_0.length
-                    M = m
-                    N = n
-                    for (let i = 2; i <= m; i++) {
-                        if (m % i === 0 &&  n % i === 0)
-                            M = m / i, N = n / i;
-                    }
-                    str_length = M+'/'+N
-
-                    reverse_has = ''
-                    if ( $($($(".tact")[i]).children()[j]).hasClass("reverse") ){
-                        reverse_has = ' reverse'
-                    }
-                    $('<div class="column-in-tact'+reverse_has+'" data-length="'+str_length+'" all_pos_y="'+$($($(".tact")[i]).children()[j]).attr("all_pos_y")+'" league="'+prev_league+'"></div>').insertAfter($($(".tact")[i-1]).children()[$($(".tact")[i-1]).children().length - 1])
-                    for (let ind_note = 0; ind_note < $($($(".tact")[i]).children()[j]).children().length; ind_note++) {
-                        let row = $($($($(".tact")[i]).children()[j]).children()[ind_note]).attr("data-row")
-                        $($($(".tact")[i-1]).children()[$($(".tact")[i-1]).children().length - 1]).append($('<div class="note on-'+row+'-row" data-row="'+row+'" data-length="'+str_length+'">'+notes_svg[str_length]+'</div>'))
-                    }
-                    flag = true
-                }
-            }
-        }
-        if ($($($(".tact")[innd]).children()[0]).hasClass("zero")){
-            $($(".tact")[innd]).addClass("zero")
-        }
+        $("#main2").removeClass('thin-line')
     }
 }
 
-function sizePic() {
+function new_sizePic() {
     size = $("#settings_size_of_notes input").val();
     img = $("#settings_size_of_notes p span");
     img.html(''+size);
@@ -857,7 +666,6 @@ function sizePic() {
     style_columns_notes = '.column-in-row{\nheight: '+(height)+'px;\n}\n.column-in-tact{\n\tmin-width: '+(size*width_present)+'px;\n}\n.note > svg{\ntop: '+(-size*width_present+0.125*height+8*size*width_present/74)+'px;\n}\n'
     if(size*width_present < 40){
         style_columns_notes += '.row-stan{\nbackground: repeating-linear-gradient(to bottom,rgb(0,0,0),rgb(0,0,0) 1px,rgb(255,255,255) 1px,rgb(255,255,255) calc(25% - 1px),rgb(0,0,0) calc(25% - 1px))\n}\n'
-        
     }
     $("#style-size").html(style_columns_notes)
 
@@ -868,25 +676,6 @@ function sizePic() {
     margin_top = 0.00071429*x**2+0.07142857*x+3.71428571
 
     style_margin = '.dimension{\nwidth: '+width+'px;\n}\n.dimension div{\nfont-size: '+font_size+'px;\n}\n.dimension div:nth-child(1){\nmargin-top: -'+margin_top+'px\n}\n.key{\nwidth: '+(50*width_present)+'px\n}\n'
-
-    // for (var i = -10; i < 10; i+=0.5) {
-    //     if (i % 1 == 0){
-    //         style_margin += '.on-'+i+'-row{'
-    //     } else {
-    //         style_margin += '.on-'+(i-0.5)+'-between-'+(i+0.5)+'-row{'
-    //     }
-    //     style_margin += 'margin-top: '+(height - 0.0625*height - (i-1)*0.250*height)+'px;}\n'
-    // }
-    // style_margin = ""
-    // for (var i = -10; i < 10; i+=0.5) {
-    //     if (i % 1 == 0){
-    //         style_margin += '.on-'+i+'-row{'
-    //     } else {
-    //         style_margin += '.on-'+(i-0.5)+'-between-'+(i+0.5)+'-row{'
-    //     }
-    //     style_margin += 'margin-top: '+ (100 - 0.0625*100 - (i-1)*0.250*100) +'%;}\n'
-    // }
-
     $("#style-for-pos_y-of-notes").html(style_margin)
     all_from_zero(json_arr)
 }

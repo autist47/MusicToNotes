@@ -1,0 +1,18 @@
+/* ЛКМ по ноте */
+.choice g{
+    fill : grey!important;
+}
+.choice line{
+    /*stroke: grey!important;*/
+}
+
+/* ПКМ по объекту (открытие меню) */
+.choice-menu g{
+    fill : red!important;
+}
+.choice-menu line{
+    /*stroke: red!important;*/
+}
+.choice-menu div{
+    color: red!important;
+}

@@ -1,0 +1,130 @@
+{% extends 'musicToNotes/base.html' %}
+{% load static %}
+
+{% block start_js %}
+	<script type="text/javascript" src="{% static 'musicToNotes/js/all_svg.js' %}"></script>
+	<script type="text/javascript" src="{% static 'musicToNotes/js/variables.js' %}"></script>
+	<script type="text/javascript">
+		json_arr = {{ data|safe }}
+	</script>
+	<script type="text/javascript" src="{% static 'musicToNotes/js/module_circle_menu.js' %}"></script>
+	<script type="text/javascript" src="{% static 'musicToNotes/js/editor_stana.js' %}"></script>
+	<script type="text/javascript" src="{% static 'musicToNotes/js/editor_note.js' %}"></script>
+	<script type="text/javascript" src="{% static 'musicToNotes/js/editor_key.js' %}"></script>
+	<script type="text/javascript" src="{% static 'musicToNotes/js/editor_dimension.js' %}"></script>
+	<script type="text/javascript" src="{% static 'musicToNotes/js/create_circle_menu.js' %}"></script>
+	<script type="text/javascript" src="{% static 'musicToNotes/js/hotkey.js' %}"></script>
+{% endblock %}
+
+{% block start_css %}
+	{{ block.super }}
+	<link rel="stylesheet" type="text/css" href="{% static 'musicToNotes/css/header_menu.css' %}">
+	<link rel="stylesheet" type="text/css" href="{% static 'musicToNotes/css/settings_size.css' %}">
+	<link rel="stylesheet" type="text/css" href="{% static 'musicToNotes/css/player.css' %}">
+
+    <link rel="stylesheet" type="text/css" href="{% static 'musicToNotes/css/y_pos.css' %}">
+	<link rel="stylesheet" type="text/css" href="{% static 'musicToNotes/css/main.css' %}">
+	<link rel="stylesheet" type="text/css" href="{% static 'musicToNotes/css/full_pause.css' %}">
+	<style type="text/css" id="style-for-pos_y-of-notes"></style>
+	<style id="style-size" type="text/css">
+		.columns-notes{
+			min-width: 75px;
+			height: 225px;
+		}
+		.note > svg{
+			top: -48px;
+		}
+	</style>
+	<style type="text/css" id="style-tact-after"></style>
+	<style type="text/css">
+		.off{
+			display: none;
+		}
+	</style>
+{% endblock %}
+
+{% block header_menu %}
+	{% include "musicToNotes/header_menu.html" with img='musicToNotes/img/2_4.png' %}
+{% endblock %}
+
+
+{% block content %}
+	<div id="place-for-circle-menu"></div>
+
+	<div id="main">
+		<div id="main2">
+		</div>
+	</div>
+
+	{% include "musicToNotes/settings_size.html" %}
+	<div id="place-for-leagues"></div>
+
+	{% include "musicToNotes/player.html" with audio=audio %}
+{% endblock %}
+
+
+{% block end_js %}
+	{{ block.super }}
+	<script type="text/javascript" src="{% static 'musicToNotes/js/header_menu.js' %}"></script>
+	<script type="text/javascript" src="{% static 'musicToNotes/js/settings_size.js' %}"></script>
+	<script type="text/javascript" src="{% static 'musicToNotes/js/mediaelement-and-player.min.js' %}"></script>
+	<script type="text/javascript" src="{% static 'musicToNotes/js/player.js' %}"></script>
+
+
+	<script src="{% static 'musicToNotes/js/events.js' %}"></script>
+	<script type="text/javascript">
+		$('.btn-for-recording').on('click', function(){
+			$('.btn-for-recording').toggleClass('off')
+		})
+		$(document).keydown(function(event){
+			if (ctrl && event.keyCode == 83){
+				html_to_json()
+				data = {
+					'id': {{ id }},
+					'data': JSON.stringify(json_arr),
+					'csrfmiddlewaretoken': '{{ csrf_token }}'
+				}
+				$.ajax({
+					type: "POST",
+					url: "{% url 'save_project' %}",
+					data: data,
+					success: function(data){
+						alert("success")
+					}
+				})
+			}
+		})
+	</script>
+	<script type="text/javascript">
+		function send_recording(chunks, name='test.webm', end=false, count_part=0) {
+			let all_blob = new Blob(chunks, { 'type' : 'audio/webm' });
+			let fd = new FormData();
+			fd.append('fname', name);
+			fd.append('data', all_blob);
+			fd.append('pr_id', {{id}});
+			fd.append('last', end ? 1: 0);
+			fd.append('first', count_part==1 ? 1: 0);
+
+			fd.append('csrfmiddlewaretoken', '{{ csrf_token }}')
+			$.ajax({
+				type: 'POST',
+				url: "{% url 'send_recording' %}",
+				data: fd,
+				processData: false,
+				contentType: false,
+				success: function(data){
+					if(data['audio_url']){
+						$('#original').attr('data-url', data['audio_url'])
+						if($('#original').hasClass('active')){
+							$('#audio-player').attr('src', data['audio_url'])
+						}
+					}
+					console.log('now '+count_part, data['result_json'])
+					all_from_zero(data['result_json'])
+					json_arr = data['result_json']
+				}
+			})
+		}
+	</script>
+    <script type="text/javascript" src="{% static 'musicToNotes/js/recording.js' %}"></script>
+{% endblock %}

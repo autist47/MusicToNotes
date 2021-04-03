@@ -68,7 +68,7 @@ function change_dimension(obj=some_clicked, new_val=[3, 4]){
         count_new_tact = Math.ceil(parseFloat(Mm*len_tacts/Nn)/parseFloat( new_val[0] / new_val[1] ))
         $('<div class="column-in-row tact tact-after-1" data-type="tact"><div class="column-in-tact" data-length="0/4" data-type="column-tact" all_pos_y="-10"><div class="note on-4-row" data-row="4" data-length="1/4" data-type="note"></div></div></div>'.repeat(count_new_tact)).insertAfter($(".tact")[end__])
         for (let i = start__; i <= end__; i++) {
-            relocate( $($($(".tact")[i]).children()[0]).children()[0], [Mm*(i-start__+1), Nn], flag_next, $(".tact")[i] )
+            relocate_note( $($($(".tact")[i]).children()[0]).children()[0], [Mm*(i-start__+1), Nn], flag_next, $(".tact")[i] )
         }
         differen = parseFloat( Mm*(end__-start__+1) / Nn )
         for (let i = end__+1; i < end__+count_new_tact; i++){
@@ -88,7 +88,7 @@ function change_dimension(obj=some_clicked, new_val=[3, 4]){
                 Mmm += ((""+differen).split('.')[0])*Nnn
             }
             $($($(".tact")[i]).children()[ $($(".tact")[i]).children().length-1 ]).remove()
-            relocate( $($($(".tact")[i]).children()[0]).children()[0], [Mmm, Nnn], flag_next, $(".tact")[i] )
+            relocate_note( $($($(".tact")[i]).children()[0]).children()[0], [Mmm, Nnn], flag_next, $(".tact")[i] )
         }
         $($($(".tact")[end__+count_new_tact]).children()[ $($(".tact")[end__+count_new_tact]).children().length-1 ]).remove()
         total_len = 0
@@ -123,11 +123,11 @@ function change_dimension(obj=some_clicked, new_val=[3, 4]){
         len_tacts = end__ - start__ + 1
         count_new_tact = Math.ceil(parseFloat(old_value[0]*len_tacts/old_value[1])/parseFloat( new_val[0] / new_val[1] ))
         for (var i = end__-1; i >= count_new_tact+start__-1; i--) {
-            relocate( $($($(".tact")[i]).children()[0]).children()[0], [(old_value[0]*(end__-i+1)), old_value[1]], flag_next, $(".tact")[i+1] )
+            relocate_note( $($($(".tact")[i]).children()[0]).children()[0], [(old_value[0]*(end__-i+1)), old_value[1]], flag_next, $(".tact")[i+1] )
             $($(".tact")[i+1]).remove()
         }
         for (let i = count_new_tact+start__-2; i >= start__; i--) {
-            relocate( $($($(".tact")[i]).children()[0]).children()[0], [(Mm*(i-start__+1)), Nn], flag_next, $(".tact")[i+1] )
+            relocate_note( $($($(".tact")[i]).children()[0]).children()[0], [(Mm*(i-start__+1)), Nn], flag_next, $(".tact")[i+1] )
         }
         // $($(".tact")[count_new_tact+start__]).remove()
         total_len = 0

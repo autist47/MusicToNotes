@@ -1,0 +1,17 @@
+<div class="audio-player">
+	<div id="sintez" class="check-song" title="Sintez song" data-url='demo.mp3'></div>
+	<div id="original" class="check-song" title="Original song"></div>
+	<audio id="audio-player" src="" type="audio/mp3" controls="controls"></audio>
+</div>
+
+<script type="text/javascript">
+	{% if audio %}
+		$('#original').addClass('active')
+		$('#original').attr('data-url', '{{audio}}')
+	{% else %}
+		$('#sintez').addClass('active')
+		$('#original').addClass('disable')
+	{% endif %}
+
+	$('#audio-player').attr('src', $('.active').attr('data-url'))
+</script>

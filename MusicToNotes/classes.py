@@ -17,10 +17,11 @@ class GlobalConst:
 		# self.setAudioConst()
 		pass
 
-	def setAudioConst(self, file_path: str = "sintez_metr.wav", sampling_rate: int = 48000, n_fft: int = 2**13) -> None:
+	def setAudioConst(self, file_path: str = "sintez_metr.wav", sampling_rate: int = 48000, n_fft: int = 2**13, hop_length=730) -> None:
 		self.sampling_rate = sampling_rate
 		self.file_path = file_path
 		self.n_fft = n_fft
+		self.hop_length = hop_length
 
 	def setBpm(self, new_bpm: int = 90) -> None:
 		self.bpm = new_bpm
@@ -28,7 +29,7 @@ class GlobalConst:
 		self.frames_in_sec = self.sampling_rate / self.hop_length
 		self.quarter_in_frames = int(self.quarter_in_sec*self.frames_in_sec)
 
-	def setMin(self, note_min: Union[float, int] = 1/4, pause_min: Union[float, int] = 1/4) -> None:
+	def setMin(self, note_min: Union[float, int] = 1/8, pause_min: Union[float, int] = 1/8) -> None:
 		self.min_frame_note = note_min*4*self.quarter_in_frames
 		self.min_float_note = note_min
 		self.min_frame_pause = pause_min*4*self.quarter_in_frames
@@ -56,9 +57,9 @@ class GlobalConst:
 		self.array_of_diez = self.array_of_diez[ind_start:] + self.array_of_diez[:ind_start]
 		self.array_of_name = self.array_of_name[ind_start:] + self.array_of_name[:ind_start]
 
-	def getLengthExactly(self, value: Union[int, float], round_to_more: bool = True, minimum: float = 0) -> str:
+	def getLengthExactly(self, value: Union[int, float], round_to_more: bool = True, minimum: float = 1/4, flexible=True) -> str:
 	    if value > self.max_of_length:
-	        res = str(self.max_of_length) + '+' + self.getLengthExactly(value-self.max_of_length, round_to_more, minimum)
+	        res = str(self.max_of_length) + '+' + self.getLengthExactly(value-self.max_of_length, round_to_more, minimum, flexible)
 	        if res.endswith('+0'):
 	            return res[:-2]
 	        else:
@@ -72,22 +73,28 @@ class GlobalConst:
 	    to_next = next_len - value
 	    to_prev = value - prev_len
 	    
-	    if round_to_more and to_next < to_prev:
+	    if round_to_more and to_next <= to_prev:
 	        if next_len < minimum:
 	            return str(0)
 	        else:
 	            return str(next_len)
 	    
-	    if prev_len <= self.min_of_length:
+	    if prev_len == self.min_of_length:
 	        if prev_len < minimum:
-	            return str(0)
+	            if flexible and prev_len == minimum/2:
+	                return str(minimum)
+	            else:
+	                return str(0)
 	        else:
 	            return str(self.min_of_length)
 
 	    if prev_len < minimum:
-	        return str(0)
+	        if flexible and prev_len == minimum/2:
+	            return str(minimum)
+	        else:
+	            return str(0)
 
-	    res = str(prev_len) + '+' + self.getLengthExactly(value - prev_len, round_to_more, minimum)
+	    res = str(prev_len) + '+' + self.getLengthExactly(value - prev_len, round_to_more, minimum, flexible)
 	    if res.endswith('+0'):
 	        return res[:-2]
 	    else:
@@ -103,7 +110,7 @@ class AnalizAudio:
 		self.consts.audio_file, self.consts.sampling_rate = lb_load(self.consts.file_path, sr=self.consts.sampling_rate)
 		self.consts.duration = self.consts.audio_file.shape[0]/self.consts.sampling_rate
 		# автоматизированно меняю значение
-		self.consts.hop_length = int(self.consts.duration*4)*10
+		# self.consts.hop_length = int(self.consts.duration*4)*10
 
 	# self.consts.duration
 	def cutAudio(self, start_sec: Union[int, float] = 0, end_sec: Union[int, float] = 18.413) -> None:
@@ -135,22 +142,20 @@ class AnalizData:
 	def plotData(self, figsize: Tuple[int, int] = (24, 10)) -> None:
 		plt.figure(figsize=figsize)
 		_, self.consts.hz_scale = librosa.display.specshow(self.consts.db, sr=self.consts.sampling_rate, x_axis='time', y_axis='log', hop_length=self.consts.hop_length)
-		plt.colorbar()
+		# plt.colorbar()
 
 	def getHzScale(self) -> None:
 		"""будущий метод вместо отрисовки будет получать только hz_scale"""
 		self.consts.hz_scale = librosa.display.specshow2(self.consts.db, sr=self.consts.sampling_rate, x_axis='time', y_axis='log', hop_length=self.consts.hop_length)
 
 	def checkingForDeletion(self, check_length, check_height, check_decibel, max_of_mean) -> bool:
-	    if check_length < self.consts.min_frame_note or (
+	    return check_length < self.consts.min_frame_note or (
 	        check_decibel["max"] - check_decibel["min"] < self.consts.difference_max_min_in_note_for_save 
 	        or check_height["max"] < self.consts.min_heght_note_for_save
-	        or max_of_mean < self.consts.min_decibel_for_save):
+	        or max_of_mean < self.consts.min_decibel_for_save)
 	            # если длина ноты < минимально допустимой
 	            # или разница между максимумом и минимумом по громкости коридора > максимально допустимой
 	            # или максимальная ширина < минимально допустимой)
-	        return True
-	    return False
 
 	def getNearestHz(self, value: float) -> float:
 	    # переводим переданный массив в формат numpy array, для использования внутримодульных функций
@@ -185,16 +190,16 @@ class AnalizData:
 	def fromTheEnd(self) -> List[ Dict[ str, Union[ float, int, List[float] ] ] ]:
 	    # массив хранит минимизированные коридоры на предыдущем шаге
 	    arr = []
-	    
+
 	    data = self.consts.db
-	    
+
 	    # все найденные ноты (с их доп параметрами)
 	    all_notes = self.consts.notes
-	    
+
 	    self.consts.min_decibel_for_save = data[:, :][data[:, :]>0].mean()
 	    self.consts.min_decibel_for_save = data[:, :][data[:, :]>0].max() * (1-len(data[:, :][data[:, :]>self.consts.min_decibel_for_save])/len(data[:, :][data[:, :]>0]))
-	    
-	    insert_code = 'all_notes.insert(0, {"start_pos": k_pos,"pos_y": pos_y,"real_hz": real_hz,"hz": hz,"real_length": length,"length": self.consts.getLengthExactly( length/ (self.consts.quarter_in_frames*4) ),"all_height": all_height,"all_decibel": all_decibel,"offset": 0,"league": "", "data_val": data[pos_y, k_pos:k_pos+length]})'
+
+	    insert_code = 'all_notes.insert(0, {"start_pos": k_pos,"pos_y": pos_y,"real_hz": real_hz,"hz": hz,"real_length": length,"length": self.consts.getLengthExactly( length/ (self.consts.quarter_in_frames*4) ),"all_height": all_height,"all_decibel": all_decibel,"offset": 0,"league": ""})'
 
 	    # обход колонок начнем с конца (справа)
 	    for k_pos in range(data.shape[1])[::-1]:
@@ -205,90 +210,87 @@ class AnalizData:
 	        # массив хранит текущие минимизированные коридоры
 	        arr2 = []
 
-	        for s_pos in range(data.shape[0]):
-	            # s_pos - позиция строки
-	            decibel = data[s_pos, k_pos]
+	        b = np.where(data[:, k_pos] == 0)[0]
+	        c = np.where(data[:, k_pos] > 0)[0]
+	        start = 0
+	        while start < data.shape[0]:
+	            start = np.where(c > start)[0]
+	            if start.size > 0:
+	                start = c[start[0]]
+	            else:
+	                break
+	            end = np.where(b > start)[0]
+	            if end.size > 0:
+	                end = b[end[0]]-1
+	            else:
+	                end = len(a)-1
 
-	            if not flag_in_coridor and decibel > 0:
-	                # если мы не внутри коридора и текущая громкость > 0
-	                # то коридор начался
+	            # mean - середина (индекс середины) коридора 
+	            mean = int( (end + start) / 2)
+	            # height_of_note - высота (ширина) коридора
+	            height_of_note = end - start + 1
 
-	                # start - начало коридора в этом столбце
-	                start = s_pos
-	                flag_in_coridor = True
-	            elif flag_in_coridor and (decibel == 0 or s_pos == data.shape[0] - 1):
-	                # если мы внутри коридора и (текущая громкость == 0 или мы дошли до конца)
-	                # то коридор закончился
+	            # max_decibel - максимальное значение коридора коридора
+	            # mean_decibel - максимальное значение коридора коридора
+	            # min_decibel - максимальное значение коридора коридора
+	            if height_of_note > 1:
+	                max_decibel = data[start:end, k_pos].max()
+	                mean_decibel = data[start:end, k_pos].mean()
+	                min_decibel = data[start:end, k_pos].min()
+	            else:
+	                min_decibel = mean_decibel = max_decibel = data[start, k_pos]
 
-	                # end - конец коридора в этом столбце
-	                end = s_pos - 1
-	                flag_in_coridor = False
 
-	                # mean - середина (индекс середины) коридора 
-	                mean = int( (end + start) / 2)
-	                # height_of_note - высота (ширина) коридора
-	                height_of_note = end - start + 1
-	    
-	                # max_decibel - максимальное значение коридора коридора
-	                # mean_decibel - максимальное значение коридора коридора
-	                # min_decibel - максимальное значение коридора коридора
-	                if height_of_note > 1:
-	                    max_decibel = data[start:end, k_pos].max()
-	                    mean_decibel = data[start:end, k_pos].mean()
-	                    min_decibel = data[start:end, k_pos].min()
-	                else:
-	                    min_decibel = mean_decibel = max_decibel = data[start, k_pos]
-	                
-	                
-	                data_column_copy = copy.deepcopy(data[:, k_pos])
-	                # обнуляем весь коридор в этом столбце
-	                data[start:end+1, k_pos] = 0
-	                # flag_new_coridor - флаг определяет это новый коридор или нет
-	                flag_new_coridor = True
+	            data_column_copy = copy.deepcopy(data[:, k_pos])
+	            # обнуляем весь коридор в этом столбце
+	            data[start:end+1, k_pos] = 0
+	            # flag_new_coridor - флаг определяет это новый коридор или нет
+	            flag_new_coridor = True
 
-	                for pos_y, length, all_height, all_decibel in arr:
-	                    # берем из предыдущих минимизированных коридоров следующее:
-	                    # pos_y - позиция (индекс) по оси y
-	                    # length - длина коридора
-	                    # all_height - словарь из Максимальной, Средней и Минимальной высоты (ширины) коридора
-	                    # all_decibel - словарь из Максимальной, Средней и Минимальной громкости коридора
+	            for pos_y, length, all_height, all_decibel in arr:
+	                # берем из предыдущих минимизированных коридоров следующее:
+	                # pos_y - позиция (индекс) по оси y
+	                # length - длина коридора
+	                # all_height - словарь из Максимальной, Средней и Минимальной высоты (ширины) коридора
+	                # all_decibel - словарь из Максимальной, Средней и Минимальной громкости коридора
 
-	                    if start-2 < pos_y < end+2:
-	                        # если был минимизирован коридор на честоте, которая лежит в интервале частот текущего коридора
-	                        if all_decibel["max"] - max_decibel > self.consts.difference_max_for_split and (
-	                            all_decibel["mean"] - mean_decibel > self.consts.difference_mean_for_split):
-	                            # если следующая громкость гораздо громче текущей (по макимуму и по среднему значению)
-	                            # то это другая нота и мы их разделяем
-	                            data[pos_y, k_pos] = 0
-	                        else:
-	                            # иначе это продолжение ноты
-	                            data[pos_y, k_pos] = data_column_copy[pos_y-2:pos_y+2].mean()
-	                            arr2.append([
-	                                pos_y,
-	                                length+1,
-	                                {
-	                                    "max": max(height_of_note, all_height["max"]),
-	                                    "mean": (all_height["mean"] * length + height_of_note) / (length+1),
-	                                    "min": min(height_of_note, all_height["min"])
-	                                },
-	                                {
-	                                    "max": max(max_decibel, all_decibel["max"]),
-	                                    "mean": (all_decibel["mean"] * length + mean_decibel) / (length+1),
-	                                    "min": min(min_decibel, all_decibel["min"])
-	                                }
-	                            ])
-	                        # это точно не новый коридор
-	                        flag_new_coridor = False
-	                if flag_new_coridor:
-	                    # если это начало (если смотреть справа) коридора
-	                    # то добавляем его
-	                    data[mean, k_pos] = mean_decibel
-	                    arr2.append([
-	                        mean,
-	                        1,
-	                        {"max": height_of_note, "mean": height_of_note, "min": height_of_note},
-	                        {"max": max_decibel, "mean": mean_decibel, "min": min_decibel}
-	                    ])
+	                if start-2 < pos_y < end+2:
+	                    # если был минимизирован коридор на честоте, которая лежит в интервале частот текущего коридора
+	                    if all_decibel["max"] - max_decibel > self.consts.difference_max_for_split and (
+	                        all_decibel["mean"] - mean_decibel > self.consts.difference_mean_for_split):
+	                        # если следующая громкость гораздо громче текущей (по макимуму и по среднему значению)
+	                        # то это другая нота и мы их разделяем
+	                        data[pos_y, k_pos] = 0
+	                    else:
+	                        # иначе это продолжение ноты
+	                        data[pos_y, k_pos] = data_column_copy[pos_y-2:pos_y+2].mean()
+	                        arr2.append([
+	                            pos_y,
+	                            length+1,
+	                            {
+	                                "max": max(height_of_note, all_height["max"]),
+	                                "mean": (all_height["mean"] * length + height_of_note) / (length+1),
+	                                "min": min(height_of_note, all_height["min"])
+	                            },
+	                            {
+	                                "max": max(max_decibel, all_decibel["max"]),
+	                                "mean": (all_decibel["mean"] * length + mean_decibel) / (length+1),
+	                                "min": min(min_decibel, all_decibel["min"])
+	                            }
+	                        ])
+	                    # это точно не новый коридор
+	                    flag_new_coridor = False
+	            if flag_new_coridor:
+	                # если это начало (если смотреть справа) коридора
+	                # то добавляем его
+	                data[mean, k_pos] = mean_decibel
+	                arr2.append([
+	                    mean,
+	                    1,
+	                    {"max": height_of_note, "mean": height_of_note, "min": height_of_note},
+	                    {"max": max_decibel, "mean": mean_decibel, "min": min_decibel}
+	                ])
+	            start = end+1
 	        if arr2 != []:
 	            # если в этом столбце были корридоры (ноты)
 	            for pos_y, length, all_height, all_decibel in arr:
@@ -331,6 +333,317 @@ class AnalizData:
 	            hz=self.getNearestHz(self.consts.hz_scale[pos_y])
 	            eval(insert_code)
 	    self.consts.notes = all_notes
+
+	def from_the_end_for_parts(self, left_notes=[], offset_k_pos=0):
+	    difference_max_for_split = self.consts.difference_max_for_split
+	    difference_mean_for_split = self.consts.difference_mean_for_split
+
+	    # массив хранит минимизированные коридоры на предыдущем шаге
+	    arr = []
+
+	    # крайние правые коридоры (не минимизированные)
+	    right_notes = []
+	    
+	    data = self.consts.db
+	    
+	    # все найденные ноты (с их доп параметрами)
+	    all_notes = []
+	    interval = 4
+	    
+	    min_decibel_for_save = data[:, :][data[:, :]>0].mean()
+	    min_decibel_for_save = data[:, :][data[:, :]>0].max() * (1-len(data[:, :][data[:, :]>min_decibel_for_save])/len(data[:, :][data[:, :]>0]))
+	    self.consts.min_decibel_for_save = min_decibel_for_save
+	    # min_decibel_for_save = 27.9218926310936
+	    # print(f"{min_decibel_for_save=}")
+	    
+	    insert_code = 'all_notes.insert(0, {"start_pos": k_pos_start,"pos_y": pos_y,"real_hz": real_hz,"hz": hz,"real_length": length,"length": self.consts.getLengthExactly( length/ (self.consts.quarter_in_frames*4) ),"all_height": all_height,"all_decibel": all_decibel,"offset": 0,"league": ""})'
+	    # print(insert_code.replace(',', ',\n\t'))
+
+	    # k_pos = offset_k_pos
+	    # обход колонок начнем с конца (справа)
+	    for k_pos_for_data in range(data.shape[1])[::-1]:
+	        k_pos = offset_k_pos + k_pos_for_data
+	        # k_pos - поиция колонки
+
+	        # flag_in_coridor определяет мы сейчас внутри коридора или нет
+	        flag_in_coridor = False
+	        # массив хранит текущие минимизированные коридоры
+	        arr2 = []
+
+	        b = np.where(data[:, k_pos_for_data] == 0)[0]
+	        c = np.where(data[:, k_pos_for_data] > 0)[0]
+	        start = 0
+	        while start < data.shape[0]:
+	            start = np.where(c > start)[0]
+	            if start.size > 0:
+	                start = c[start[0]]
+	            else:
+	                break
+	            end = np.where(b > start)[0]
+	            if end.size > 0:
+	                end = b[end[0]]-1
+	            else:
+	                end = len(a)-1
+
+	            # mean - середина (индекс середины) коридора 
+	            mean = int( (end + start) / 2)
+	            # height_of_note - высота (ширина) коридора
+	            height_of_note = end - start + 1
+
+	            # max_decibel - максимальное значение коридора коридора
+	            # mean_decibel - максимальное значение коридора коридора
+	            # min_decibel - максимальное значение коридора коридора
+	            if height_of_note > 1:
+	                max_decibel = data[start:end, k_pos_for_data].max()
+	                mean_decibel = data[start:end, k_pos_for_data].mean()
+	                min_decibel = data[start:end, k_pos_for_data].min()
+	                max_of_mean_decibel = data[max(0, mean-2):min(data.shape[0], mean+2), k_pos_for_data].mean()
+	            else:
+	                min_decibel = mean_decibel = max_decibel = max_of_mean_decibel = data[start, k_pos_for_data]
+	            
+	            
+	            data_column_copy = copy.deepcopy(data[:, k_pos_for_data])
+	            # обнуляем весь коридор в этом столбце
+	            data[start:end+1, k_pos_for_data] = 0
+	            # flag_new_coridor - флаг определяет это новый коридор или нет
+	            flag_new_coridor = True
+	            for pos_y, length, all_height, all_decibel, k_pos_start in arr:
+	                # берем из предыдущих минимизированных коридоров следующее:
+	                # pos_y - позиция (индекс) по оси y
+	                # length - длина коридора
+	                # all_height - словарь из Максимальной, Средней и Минимальной высоты (ширины) коридора
+	                # all_decibel - словарь из Максимальной, Средней и Минимальной громкости коридора
+	                # k_pos_start
+
+	                if start-interval <= pos_y <= end+interval:
+	                    # если был минимизирован коридор на честоте, которая лежит в интервале частот текущего коридора
+
+	                    if right_notes != []:
+	                        np_right_notes = np.array(right_notes, dtype=object)
+	                        index_right_notes = np.where(pos_y == np_right_notes[:, 1])[0]
+	                        if index_right_notes.size > 0:
+	                            index_right_notes = index_right_notes[0]
+	                    
+	                    
+	                    # только что заметил, что тут (ниже) не юзается модуль)) мб надо бы
+	                    if all_decibel["max"] - max_decibel > difference_max_for_split and (
+	                        all_decibel["mean"] - mean_decibel > difference_mean_for_split):
+	                        # если следующая громкость гораздо громче текущей (по макимуму и по среднему значению)
+	                        # то это другая нота и мы их разделяем
+	                        data[pos_y, k_pos_for_data] = 0
+	                    else:
+	                        # иначе это продолжение ноты
+	                        max_of_mean_decibel = data_column_copy[max(pos_y-2, 0):min(pos_y+2, len(data_column_copy)-1)].mean()
+	                        data[pos_y, k_pos_for_data] = max_of_mean_decibel
+	                        np_arr2 = np.array(arr2)
+	                        if np_arr2.size != 0 and pos_y in np_arr2[:, 0]:
+	                            index_repeat = np.where(np_arr2 == pos_y)[0][0]
+	                            arr2[index_repeat][2]["min"] = min(height_of_note, arr2[index_repeat][2]["min"])
+	                            arr2[index_repeat][2]["max"] = max(height_of_note, arr2[index_repeat][2]["max"])
+	                            arr2[index_repeat][3]["min"] = min(min_decibel, arr2[index_repeat][3]["min"])
+	                            arr2[index_repeat][3]["max"] = max(max_decibel, arr2[index_repeat][3]["max"])
+	                            arr2[index_repeat][3]["max_of_mean"] = max(max_of_mean_decibel, arr2[index_repeat][3]["max_of_mean"])
+	                        else:
+	                            arr2.append([
+	                                pos_y,
+	                                length+1,
+	                                {
+	                                    "max": max(height_of_note, all_height["max"]),
+	                                    "mean": (all_height["mean"] * length + height_of_note) / (length+1),
+	                                    "min": min(height_of_note, all_height["min"]),
+	                                    "last_pos_y": pos_y
+	                                },
+	                                {
+	                                    "max": max(max_decibel, all_decibel["max"]),
+	                                    "mean": (all_decibel["mean"] * length + mean_decibel) / (length+1),
+	                                    "min": min(min_decibel, all_decibel["min"]),
+	                                    "max_of_mean": max(max_of_mean_decibel, all_decibel["max_of_mean"])
+	                                },
+	                                k_pos
+	                            ])
+	                        if right_notes != [] and index_right_notes.size > 0 and right_notes[index_right_notes][-1]:
+	                            st, en = right_notes[index_right_notes][0]
+	                            right_notes[index_right_notes] = [
+	                                (st, en),
+	                                pos_y,
+	                                length+1,
+	                                {
+	                                    "max": max(height_of_note, all_height["max"]),
+	                                    "mean": (all_height["mean"] * length + height_of_note) / (length+1),
+	                                    "min": min(height_of_note, all_height["min"])
+	                                },
+	                                {
+	                                    "max": max(max_decibel, all_decibel["max"]),
+	                                    "mean": (all_decibel["mean"] * length + mean_decibel) / (length+1),
+	                                    "min": min(min_decibel, all_decibel["min"]),
+	                                    "max_of_mean": max(max_of_mean_decibel, all_decibel["max_of_mean"])
+	                                },
+	                                k_pos,
+	                                True
+	                            ]
+	                    # это точно не новый коридор
+	                    flag_new_coridor = False
+	            if flag_new_coridor:
+	                # если это начало (если смотреть справа) коридора
+	                # то добавляем его
+	                yet_added = False
+	                for pos_y, length, all_height, all_decibel, k_pos_start in arr2:
+	                    if start-interval <= pos_y <= end+interval:
+	                        yet_added = True
+	                if not yet_added:
+	                    data[mean, k_pos_for_data] = mean_decibel
+	                    arr2.append([
+	                        mean,
+	                        1,
+	                        {"max": height_of_note, "mean": height_of_note, "min": height_of_note, "last_pos_y": mean},
+	                        {"max": max_decibel, "mean": mean_decibel, "min": min_decibel, "max_of_mean": max_of_mean_decibel},
+	                        k_pos
+	                    ])
+	                    if k_pos_for_data == data.shape[1]-1:
+	                        right_notes.append([
+	                            (start, end),
+	                            mean,
+	                            1,
+	                            {"max": height_of_note, "mean": height_of_note, "min": height_of_note},
+	                            {"max": max_decibel, "mean": mean_decibel, "min": min_decibel, "max_of_mean": max_of_mean_decibel},
+	                            k_pos,
+	                            True
+	                        ])
+	            start = end + 1
+	        if arr2 != []:
+	            # если в этом столбце были корридоры (ноты)
+	            for pos_y, length, all_height, all_decibel, k_pos_start in arr:
+	                if [pos_y, length+1] not in np.array(arr2)[:, :2]:
+	                    # и если предыдущая нота не попала в текущий массив (это значит что коридор (нота) по идее закончился)
+	                    # и громкость следующего семпла этой же частоты != 0 (это значит что еще не очищали этот коридор)  and data[pos_y, k_pos_for_data+1] != 0
+	                    if self.checkingForDeletion(length, all_height, all_decibel, all_decibel["max_of_mean"]):
+	                        # если коридор подошел под критерий удаления
+	                        # удаляем этот коридор
+	                        data[pos_y, k_pos_for_data+1:k_pos_for_data+length+2] = 0
+	                    else:
+	                        # ноту надо сохранить
+	                        real_hz=self.consts.hz_scale[pos_y]
+	                        hz=self.getNearestHz(real_hz)
+	                        eval(insert_code)
+	                    if right_notes != []:
+	                        np_right_notes = np.array(right_notes, dtype=object)
+	                        index_right_notes = np.where(pos_y == np_right_notes[:, 1])[0]
+	                        if index_right_notes.size > 0:
+	                            index_right_notes = index_right_notes[0]
+	                            if right_notes[index_right_notes][-1]:
+	                                right_notes[index_right_notes][-1] = False
+	                                right_notes[index_right_notes][-2] = k_pos+1
+	        else:
+	            # во всей колонке не обнаружено коридоров, а значит все предыдущие закончились и их надо проверить на удаление
+	            for pos_y, length, all_height, all_decibel, k_pos_start in arr:
+	#                 np_right_notes = np.array(right_notes)
+	#                 if np_right_notes.size:
+	#                     index_right_notes = np.where(pos_y == np_right_notes[:, 1])[0]
+	#                     if index_right_notes.size > 0:
+	#                         index_right_notes = index_right_notes[0]
+	#                         if right_notes[index_right_notes][-1]:
+	#                             right_notes[index_right_notes][-1] = False
+	#                             right_notes[index_right_notes][-2] = k_pos
+	                for j, i in enumerate(right_notes):
+	                    if i[-1]:
+	                        right_notes[j][-1] = False
+	                        right_notes[j][-2] = k_pos+1
+
+	                if self.checkingForDeletion(length, all_height, all_decibel, all_decibel["max_of_mean"]):
+	                    # если коридор подошел под критерий удаления
+	                    # удаляем этот коридор
+	                    data[pos_y, k_pos_for_data+1:k_pos_for_data+length+2] = 0
+	                else:
+	                    # ноту надо сохранить
+	                    real_hz=self.consts.hz_scale[pos_y]
+	                    hz=self.getNearestHz(real_hz)
+	                    eval(insert_code)
+	        # в конце пробега по текущей колонке запоминаем её как предыдущую, для следующей
+	        arr = arr2
+
+	    # добавляю к найденным нотам их левые части из предыдущей записи
+	    for r_ind, (r_pos_y, r_length, r_all_height, r_all_decibel, r_k_pos_start) in enumerate(arr):
+	        for l_ind, ((l_start, l_end), l_pos_y, l_length, l_all_height, l_all_decibel, l_k_start, _) in enumerate(left_notes):
+	            if l_start-interval <= r_pos_y <= l_end+interval:
+	                if not (r_all_decibel["max"] - l_all_decibel["max"] > difference_max_for_split and (
+	                    r_all_decibel["mean"] - l_all_decibel["mean"] > difference_mean_for_split)):
+	                    # это продолжение ноты
+	                    arr[r_ind] = [
+	                        r_pos_y,
+	                        r_length+l_length,
+	                        {
+	                            "max": max(r_all_height["max"], l_all_height["max"]),
+	                            "mean": (r_all_height["mean"] * r_length + l_all_height["mean"] * l_length) / (r_length+l_length),
+	                            "min": min(r_all_height["min"], l_all_height["min"]),
+	                            "last_pos_y": l_pos_y
+	                        },
+	                        {
+	                            "max": max(r_all_decibel["max"], l_all_decibel["max"]),
+	                            "mean": (r_all_decibel["mean"] * r_length + l_all_decibel["mean"] * l_length) / (r_length+l_length),
+	                            "min": min(r_all_decibel["min"], l_all_decibel["min"]),
+	                            "max_of_mean": max(r_all_decibel["max_of_mean"], l_all_decibel["max_of_mean"])
+	                        },
+	                        l_k_start
+	                    ]
+	    # добавляю к самым первым нотам этой записи их левые части из предыдущей записи
+	    for r_ind, ((r_start, r_end), r_pos_y, r_length, r_all_height, r_all_decibel, r_k_start, r_not_end) in enumerate(right_notes):
+	        for l_ind, ((l_start, l_end), l_pos_y, l_length, l_all_height, l_all_decibel, l_k_start, _) in enumerate(left_notes):
+	            if r_not_end:
+	                if l_start-interval <= r_pos_y <= l_end+interval:
+	                    if r_all_decibel["max"] - l_all_decibel["max"] > difference_max_for_split and (
+	                        r_all_decibel["mean"] - l_all_decibel["mean"] > difference_mean_for_split):
+	                        # это разные ноты, надо закончить эту
+	                        right_notes[r_ind][-1] = False
+	                        right_notes[r_ind][-2] = k_pos
+	                    else:
+	                        # это продолжение ноты
+	                        right_notes[r_ind] = [
+	                            (r_start, r_end),
+	                            r_pos_y,
+	                            r_length+l_length,
+	                            {
+	                                "max": max(r_all_height["max"], l_all_height["max"]),
+	                                "mean": (r_all_height["mean"] * r_length + l_all_height["mean"] * l_length) / (r_length+l_length),
+	                                "min": min(r_all_height["min"], l_all_height["min"])
+	                            },
+	                            {
+	                                "max": max(r_all_decibel["max"], l_all_decibel["max"]),
+	                                "mean": (r_all_decibel["mean"] * r_length + l_all_decibel["mean"] * l_length) / (r_length+l_length),
+	                                "min": min(r_all_decibel["min"], l_all_decibel["min"]),
+	                                "max_of_mean": max(r_all_decibel["max_of_mean"], l_all_decibel["max_of_mean"])
+	                            },
+	                            l_k_start,
+	                            False
+	                        ]
+
+	    # теперь массив правых нот завершен
+	    for j, i in enumerate(right_notes):
+	        if i[-1]:
+	            right_notes[j][-1] = False
+
+
+	    # данные закончились, а значит все найденные коридоры закончились и надо их проверить на удаление
+	    for pos_y, length, all_height, all_decibel, k_pos_start in arr:
+	        if self.checkingForDeletion(length, all_height, all_decibel, all_decibel["max_of_mean"]):
+	            # если коридор подошел под критерий удаления
+	            # удаляем этот коридор
+	            data[pos_y, k_pos_for_data+1:k_pos_for_data+length+2] = 0
+	        else:
+	            # ноту надо сохранить
+	            real_hz=self.consts.hz_scale[pos_y]
+	            hz=self.getNearestHz(real_hz)
+	            eval(insert_code)
+	    self.consts.notes = all_notes
+	    return right_notes, data.shape[1]
+
+
+
+
+
+
+
+
+
 
 
 class AnalizNotes:
@@ -506,40 +819,23 @@ class AnalizNotes:
 
 class ConvertNotes:
 	dimension_now = [3, 4]
-	result_json = [
-	    {
-	        "key": "scripka",
-	        "dimension": dimension_now,
-	        "content":
-	            [
-	                [
-	                    # [
-	                    #     "start",
-	                    #     {
-	                    #         "svg_key": "1/4",
-	                    #         "y_pos" : 2,
-	                    #         "code": 44
-	                    #     },
-	                    #     {
-	                    #         "svg_key": "1/4",
-	                    #         "y_pos" : 3,
-	                    #         "code": 44
-	                    #     }
-	                    # ]
-	                ]
-	            ]
-	    }
-	]
+	result_json = []
 
 	hz_center_of_scripka = 494.08
 	hz_lower_of_scripka = 329.76
-	# ind_center_of_scripka = array_of_all_hz.index(hz_center_of_scripka)
-	# ind_lower_of_scripka = array_of_all_hz.index(hz_lower_of_scripka)
 	name_of_scripka = "scripka"
 
-	array_of_center = [hz_center_of_scripka]
-	array_of_lower = [hz_lower_of_scripka]
-	array_of_center_name = [name_of_scripka]
+	hz_center_of_alt = 261.73
+	hz_lower_of_alt = 174.68
+	name_of_alt = "alt"
+
+	hz_center_of_bas = 146.89
+	hz_lower_of_bas = 98.04
+	name_of_bas = "bas"
+
+	array_of_center = [hz_center_of_scripka, hz_center_of_alt, hz_center_of_bas]
+	array_of_lower = [hz_lower_of_scripka, hz_lower_of_alt, hz_lower_of_bas]
+	array_of_center_name = [name_of_scripka, name_of_alt, name_of_bas]
 
 	def __init__(self, consts: GlobalConst):
 		self.consts = consts
@@ -558,76 +854,134 @@ class ConvertNotes:
 	            N = n / ind
 	    return str(int(M))+"/"+str(int(N))
 
-	def getOffset(self, value: float, base: float = 329.76) -> int:
+	def getOffset(self, value: float, base: float = 329.76, consider_alterations=False) -> int:
 	    index_value = self.consts.array_of_all_hz.index(value)
 	    index_base = self.consts.array_of_all_hz.index(base)
+	    if not consider_alterations:
+	    	offset = 0
+	    	i = self.consts.array_of_diez[index_value % len(self.consts.array_of_diez)]+1
+	    	end = index_value - index_base
+	    	while i <= end:
+	    		if self.consts.array_of_diez[i % len(self.consts.array_of_diez)] == 0:
+	    			offset += 1
+	    		i += 1
+	    	return offset
 	    return index_value - index_base
 
 	def printJson(self):
 		print(json.dumps(self.result_json, sort_keys=True, indent=4))
 
+	def getLeague(self, league_now, league_new):
+	    if league_now == "":
+	        return league_new
+	    elif league_now == league_new:
+	        return league_now
+	    else:
+	        return 'middle'
+
 	def convert(self):
+		self.result_json = []
 		found_notes = self.consts.notes
-		last_start_pos = 0
-		empty_in_tact = self.dimension_now[0] / self.dimension_now[1]
-
-		ind_center = 0
-
-
-		free = empty_in_tact
+		keys_pos = []
+		# инфа о более подходящем ключе для ноты (и чуть менее подходящем)
 
 		last_start_pos = -1
-		# -1 чтоб точно не существовало такой ноты
+		for ind_note, note in enumerate(found_notes):
+		    second_min_offset_key_ind = min_offset_key_ind = 0
+		    second_min_offset = min_offset = abs(self.getOffset(value=note["hz"], base=self.array_of_center[0]))
+		    
+		    for ind_key, key in enumerate(self.array_of_center[1:]):
+		        now_offset = abs(self.getOffset(value=note["hz"], base=key))
+		        if now_offset < min_offset:
+		            min_offset = now_offset
+		            min_offset_key_ind = ind_key+1
+		        if second_min_offset > now_offset >= min_offset or second_min_offset == min_offset:
+		            second_min_offset = now_offset
+		            second_min_offset_key_ind = ind_key+1
 
-		for ind, note in enumerate(found_notes):
-		    if free == 0:
-		        self.result_json[-1]["content"].append([])
-		        free = empty_in_tact
+		    flex_now = abs(min_offset - second_min_offset)
 
-		    if note["start_pos"] == last_start_pos:
-		        # print(json.dumps(self.result_json[-1]["content"], sort_keys=True, indent=4))
-		        self.result_json[-1]["content"][-1][-1].append({
-		                    "svg_key": self.getReduction(float(note["length"])),
-		                    "y_pos" : self.getOffset(value=note["hz"], base=self.array_of_lower[ind_center]),
-		                    "code": 0
-		                })
+		    if len(keys_pos) == 0:
+		        keys_pos.append({'ind': min_offset_key_ind, 'sec_ind': second_min_offset_key_ind, 'start': ind_note, 'end': ind_note, 'flex': flex_now})
+		    elif keys_pos[-1]['ind'] == min_offset_key_ind or note["start_pos"] == last_start_pos:
+		        keys_pos[-1]['end'] = ind_note
 		    else:
-		        if free - float(note["length"]) < 0:
-		            len_now = free
-		            len_next = float(note["length"]) - len_now
-		            
-		            self.result_json[-1]["content"][-1].append([
-		                note["league"],
-		                # ИЗМЕНИТЬ ЛИГУ
-		                {
-		                    "svg_key": self.getReduction(float(len_now)),
-		                    "y_pos" : self.getOffset(value=note["hz"], base=self.array_of_lower[ind_center]),
-		                    "code": 0
-		                }
-		            ])
-		            self.result_json[-1]["content"].append([])
-		            self.result_json[-1]["content"][-1].append([
-		                note["league"],
-		                # ИЗМЕНИТЬ ЛИГУ
-		                {
-		                    "svg_key": self.getReduction(float(len_next)),
-		                    "y_pos" : self.getOffset(value=note["hz"], base=self.array_of_lower[ind_center]),
-		                    "code": 0
-		                }
-		            ])
-		            free = empty_in_tact - len_next
+		#         если предыдущий ключ длился на пару нот и он мог быть другим ключом и текущий ключ точно какой нужен
+		        if keys_pos[-1]['end']-keys_pos[-1]['start'] < 4 and keys[-1]['flex'] < 4 and flex_now >=4:
+		            if len(keys_pos) > 1:
+		                if keys_pos[-2]['ind'] == keys_pos[-1]['sec_ind'] == min_offset_key_ind:
+		                    keys_pos[-2]['end'] = ind_note
+		                    del keys_pos[-1]
+		                elif keys_pos[-2]['ind'] != keys_pos[-1]['sec_ind'] == min_offset_key_ind:
+		                    keys_pos[-1]['ind'], keys_pos[-1]['sec_ind'] = keys_pos[-1]['sec_ind'], keys_pos[-1]['ind']
+		                    keys_pos[-1]['end'] = ind_note
+		                elif keys_pos[-2]['ind'] == keys_pos[-1]['sec_ind'] != min_offset_key_ind:
+		                    keys_pos[-2]['end'] = keys_pos[-1]['end']
+		                    del keys_pos[-1]
+		                    keys_pos.append({'ind': min_offset_key_ind, 'sec_ind': second_min_offset_key_ind, 'start': ind_note, 'end': ind_note, 'flex': flex_now})
+		                else:
+		                    keys_pos.append({'ind': min_offset_key_ind, 'sec_ind': second_min_offset_key_ind, 'start': ind_note, 'end': ind_note, 'flex': flex_now})
+		            else:
+		                if keys_pos[-1]['sec_ind'] == min_offset_key_ind:
+		                    keys_pos[-1]['ind'], keys_pos[-1]['sec_ind'] = keys_pos[-1]['sec_ind'], keys_pos[-1]['ind']
+		                    keys_pos[-1]['end'] = ind_note
+		                else:
+		                    keys_pos.append({'ind': min_offset_key_ind, 'sec_ind': second_min_offset_key_ind, 'start': ind_note, 'end': ind_note, 'flex': flex_now})
 		        else:
-		            self.result_json[-1]["content"][-1].append([
-		                note["league"],
-		                {
-		                    "svg_key": self.getReduction(float(note["length"])),
-		                    "y_pos" : self.getOffset(value=note["hz"], base=self.array_of_lower[ind_center]),
-		                    "code": 0
-		                }
-		            ])
-		            free -= float(note["length"])
+		            keys_pos.append({'ind': min_offset_key_ind, 'sec_ind': second_min_offset_key_ind, 'start': ind_note, 'end': ind_note, 'flex': flex_now})
 		    last_start_pos = note["start_pos"]
 
+		empty_in_tact = self.dimension_now[0] / self.dimension_now[1]
+		free = 0
+
+		last_start_pos = -1
+		for ind_key, key in enumerate(keys_pos):
+		    self.result_json.append({"key": self.array_of_center_name[key['ind']], "dimension": self.dimension_now, "content": []})
+		    for note in found_notes[key['start']:key['end']+1]:
+		        if free == 0 and not note["start_pos"] == last_start_pos:
+		            self.result_json[-1]["content"].append([])
+		            free = empty_in_tact
+		        
+		        if note["start_pos"] == last_start_pos:
+		            self.result_json[-1]['content'][-1][-1].append({
+		                "svg_key": self.getReduction(float(note["length"])),
+		                "y_pos" : self.getOffset(value=note["hz"], base=self.array_of_lower[key['ind']]),
+		                "code": 0,
+		            })
+		        else:
+		            if free - float(note["length"]) < 0:
+		                len_now = free
+		                len_next = float(note["length"]) - free
+
+		                self.result_json[-1]["content"][-1].append([
+		                    self.getLeague(note["league"], 'start'),
+		                    {
+		                        "svg_key": self.getReduction(float(len_now)),
+		                        "y_pos" : self.getOffset(value=note["hz"], base=self.array_of_lower[key['ind']]),
+		                        "code": 0
+		                    }
+		                ])
+		                self.result_json[-1]["content"].append([])
+		                self.result_json[-1]["content"][-1].append([
+		                    self.getLeague(note["league"], 'end'),
+		                    {
+		                        "svg_key": self.getReduction(float(len_next)),
+		                        "y_pos" : self.getOffset(value=note["hz"], base=self.array_of_lower[key['ind']]),
+		                        "code": 0
+		                    }
+		                ])
+		                free = empty_in_tact - len_next
+		            else:
+		                self.result_json[-1]["content"][-1].append([
+		                    note["league"],
+		                    {
+		                        "svg_key": self.getReduction(float(note["length"])),
+		                        "y_pos" : self.getOffset(value=note["hz"], base=self.array_of_lower[key['ind']]),
+		                        "code": 0
+		                    }
+		                ])
+		                free -= float(note["length"])
+		        last_start_pos = note['start_pos']
 		self.consts.json = self.result_json
 
 

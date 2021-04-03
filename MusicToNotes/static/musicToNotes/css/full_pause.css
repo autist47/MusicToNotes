@@ -1,0 +1,22 @@
+/* Основной блок паузы, занимает всё пространство в .tact.zero */
+.pause.full {
+	display: flex;
+	margin: auto;
+	justify-content: center;
+	align-items: center;
+	width: 100%;
+	height: 100%;
+}
+/* боковые прямоугольники */
+.pause.full div:nth-child(odd) {
+	width: 4px;
+	height: 50%;
+	background: black;
+	border-radius: 20px;
+}
+/* середина паузы (жирная черта) */
+.pause.full div:nth-child(even) {
+	width: 80%;
+	height: 20%;
+	background: black;
+}

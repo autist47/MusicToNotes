@@ -33,6 +33,10 @@ class Project(models.Model):
 	title = models.CharField(max_length=100, blank=True)
 	author = models.ForeignKey(User, on_delete=models.CASCADE)
 	music_xml = models.SlugField(blank=True)
+	using_file = models.BooleanField(default=0)
+	using_recording = models.BooleanField(default=0)
+	date_create = models.DateTimeField(auto_now_add=True)
+	date_update = models.DateTimeField(auto_now=True)
 
 	def __str__(self):
 		return str(self.author)+' '+str(self.id)+' '+self.title

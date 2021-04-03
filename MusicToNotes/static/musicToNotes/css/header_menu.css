@@ -1,15 +1,229 @@
-body{
-	height: 2000px;
-	margin: 0px;
+#top-menu{
+	width: 100%;
+	height: 65px;
+	background-color: #D9E9F2;
+	position: sticky;
+	top: 0px;
+	z-index: 1000;
 }
+
 #top-navbar{
 	width: 100%;
-	height: 50px;
-	background-color: blue;
-	position: static;
-	font-size: 28px;
+	height: 100%;
+	display: flex;
+	position: relative;
 }
-#top-navbar > ul{
+
+#top-navbar > div{
+	height: 100%;
+	display: flex;
+	position: absolute;
+}
+
+#logo-wrapper{
+	left: 0px;
+}
+#block-menu-wrapper{
+	left: calc(0px + 65px);
+}
+#recording-block-wrapper{
+	left: calc(50% - 60px - 10px - 15px);
+}
+#size-set-wrapper{
+	right: calc(25% - 125px);
+}
+#profile-wrapper{
+	right: 0px;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#logo{
+	margin: 0;
+	width: 65px;
+	height: 100%;
+	background-color: blue;
+}
+
+#block-menu{
+	position: relative;
+}
+
+#block-menu #project-title{
+	margin-top: 5px;
+}
+
+#block-menu #project-title input{
+	font-size: 20px;
+	border: none;
+	background-color: transparent;
+}
+
+#block-menu #project-title input:focus {
+	outline: 2px solid #0088FF;
+}
+
+#block-menu #list-menu{
+	position: absolute;
+	bottom: 0px;
+	display: flex;
+}
+
+#block-menu #list-menu > div{
+	display: flex;
+}
+
+#block-menu #list-menu > div > div,
+#block-menu #list-menu > div::before,
+#block-menu #project-title > input {
+	margin-left: 5px;
+}
+
+#block-menu #list-menu > div > div{
+	font-size: 16px;
+	padding: 5px 8px;
+	display: flex;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+}
+
+#block-menu #list-menu > div > div:hover{
+	background: #A5DAFA;
+}
+
+#block-menu #list-menu > div > div.active{
+	background: #85BAF8;
+}
+
+#block-menu #list-menu > div::before{
+	content: "";
+	display: block;
+	width: 2px;
+	height: 70%;
+	background: #8BA7B7;
+	align-self: flex-end;
+}
+
+#recording-block{
+	align-self: center;
+	height: 45px;
+	display: flex;
+	align-items: center;
+}
+#recording-block > div{
+	margin-right: 10px;
+}
+#recording-block #timer{
+	width: 60px;
+	text-align: right;
+	font-size: 18px;
+	color: black;
+}
+#recording-block #recording-btn{
+	width: 30px;
+	height: 30px;
+	border-radius: 50%;
+	cursor: pointer;
+}
+.start{
+	background: #58DA75;
+}
+.stop{
+	background: #F26464;
+}
+#recording-block #recording-volume{
+	width: 6px;
+	height: 100%;
+	background-color: #85BAF8;
+}
+
+#size-set{
+	width: 250px;
+	align-self: center;
+	height: 100%;
+}
+
+#size-set > div{
+	display: flex;
+	justify-content: space-around;
+	align-items: center;
+	height: 50%;
+	text-align: center;
+}
+
+#size-set > div > div:first-child{
+	width: 15px;
+	height: 15px;
+}
+#size-set > div > div:last-child{
+	width: 30px;
+	height: 30px;
+}
+#size-set > div > div > div{
+	margin: auto;
+}
+#size-set > div > input{
+	width: 200px;
+}
+#size-set img{
+	width: 100%;
+	height: 100%;
+	vertical-align: unset;
+}
+
+#profile{
+	width: 65px;
+	height: 65px;
+	background: red;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*#top-navbar > ul{
 	display: flex;
 	justify-content: flex-start;
 	margin: 0;
@@ -43,7 +257,7 @@ body{
 
 #top-navbar > ul > li:before, #top-navbar > ul > li:after,
 #top-navbar > ul > li span:before, #top-navbar > ul > li span:after {
-/* Все псевдоэлементы абсолютно позиционированы относительно нижней грани*/
+/* Все псевдоэлементы абсолютно позиционированы относительно нижней грани
 	position: absolute;
 	bottom: 0;
 }
@@ -69,7 +283,7 @@ body{
 #top-navbar > ul > li:after {
 	right: -20px;
 }
-/* Окружности */
+/* Окружности 
 #top-navbar > ul > li span:after, #top-navbar > ul > li span:before {
 	width: 40px;
 	height: 40px;
@@ -96,4 +310,4 @@ body{
 }
 .menu-on{
 	display: block !important;
-}
+}*/

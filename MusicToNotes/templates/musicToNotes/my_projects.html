@@ -1,0 +1,232 @@
+{% extends 'musicToNotes/base.html' %}
+{% load static %}
+
+{% block start_css %}
+	<link rel="stylesheet" type="text/css" href="{% static 'musicToNotes/css/header_menu.css' %}">
+	<style type="text/css">
+		.project {
+			position: relative;
+			border: 1px solid #dfe1e5;
+			border-radius: 3px;
+			box-shadow: none;
+			cursor: pointer;
+			opacity: 1;
+			background-color: #fff;
+			border-bottom: 1px solid #c4c4c4;
+			border-left: 1px solid #d3d3d3;
+			border-right: 1px solid #d3d3d3;
+			border-top: 1px solid #d3d3d3;
+			box-shadow: 0 1px 0 rgb(0 0 0 / 7%);
+			color: #444;
+			display: inline-block;
+			margin-bottom: 20px;
+			margin-right: 20px;
+			width: 208px;
+		}
+		.img {
+			border-top-left-radius: 3px;
+			border-top-right-radius: 3px;
+			height: 263px;
+			width: 100%;
+			background-repeat: no-repeat;
+			background-size: 208px auto;
+			border: none;
+			display: block;
+			position: relative;
+			-ms-high-contrast-adjust: none;
+		}
+		.labels{
+			border-top: 1px solid #e2e2e2;
+			padding: 16px 8px 14px 16px;
+			position: relative;
+		}
+		.name{
+			color: #414549;
+			font-family: "Google Sans",Roboto,Arial,sans-serif;
+			font-size: 14px;
+			font-weight: 500;
+			letter-spacing: 0.15px;
+			line-height: 18px;
+			margin-left: 2px;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			vertical-align: top;
+			white-space: nowrap;
+		}
+		.date{
+
+		}
+.remove-project > div {
+    cursor: pointer;
+    position: relative;  
+    height: 15px;
+    width: 15px;
+}
+.remove-project > div > div{
+	height: 2px;
+	width: 15px;
+	position: absolute;
+	margin-top: 6px;
+	/*background-color: #337AB7;*/
+	background: black;
+	border-radius: 2px;
+	transition: all .2s ease-in;
+}
+.leftright {
+    transform: rotate(45deg);
+}
+.rightleft {
+	transform: rotate(-45deg);
+}
+.remove-project div:hover .leftright {
+    transform: rotate(-45deg);
+    background-color: white;
+}
+.remove-project div:hover .rightleft {
+    transform: rotate(45deg);
+    background-color: white;
+}
+	.remove-project{
+		z-index: 1;
+		position: absolute;
+		right: 5px;
+		top: 5px;
+		border-radius: 50%;
+		padding: 2px;
+	}
+	.remove-project:hover{
+		background: #c3c4c6;
+	}
+	#list-projects{
+		width: 80%;
+		margin: 0 auto;
+	}
+	.project:hover{
+		border-color: blue;
+
+	}
+	</style>
+{% endblock %}
+
+{% block header_menu %}
+	{% include "musicToNotes/header_menu.html" %}
+{% endblock %}
+
+{% block content %}
+	{% if user.is_authenticated %}
+		<p>Hi {{ user.username }}!</p>
+		<a href="{% url 'logout' %}">Log out</a>
+		<br>
+		<div id="list-projects">
+			<div class="project new" data-toggle="modal" data-target="#myModal-1">
+				<div class="img" style="background-image: url('https://ssl.gstatic.com/docs/templates/thumbnails/docs-blank-googlecolors.png');"></div>
+				<div class="labels">
+					<div class="name">Новый проект</div>
+					<div class="date">создать</div>
+				</div>
+			</div>
+			{% for project in projects %}
+				<div class="project" data-url="{% url 'open_project' pr_id=project.id %}">
+					<div class="remove-project" data-id="{{ project.id }}">
+						<div>
+							<div class="leftright"></div>
+							<div class="rightleft"></div>
+						</div>
+					</div>
+					<div class="img"></div>
+					<div class="labels">
+						<div class="name">{{ project.title }}</div>
+						<div class="date">{{ project.date_update|date:"d b Y г." }}</div>
+					</div>
+				</div>
+			{% endfor %}
+		</div>
+	{% else %}
+		<p>You are not logged in.</p>
+		<p><a href="{% url 'login' %}">Log In</a> or <a href="{% url 'signup' %}">Sign Up</a></p>
+	{% endif %}
+
+	<div aria-labelledby="myModalLabel" class="modal fade" id="myModal-1" role="dialog" tabindex="-1">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button aria-label="Close" class="close" data-dismiss="modal" type="button">
+						<span aria-hidden="true">&times;</span>
+					</button>
+					<h4 class="modal-title" id="myModalLabel">
+						<input name="sm" placeholder="Имя проекта" type="input">
+					</h4>
+				</div>
+				<div class="modal-body">
+					<h3>Укажите все данные</h3>
+					<table class='table'>
+						<tr>
+							<td>файл с музыкой</td>
+							<td>
+								<form id="form" action="" method="POST" enctype="multipart/form-data">
+									
+									<input name="file" id="id_file" type="file">
+								</form>
+							</td>
+						</tr>
+					</table>
+					<input type="button" id="create-project" class="btn btn-block btn-success" value="Создать">
+				</div>
+				<div class="modal-footer">
+					<button class="btn btn-default" data-dismiss="modal" type="button">Закрыть</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<script type="text/javascript">
+		$('.project.new').on('click', function(){
+			setTimeout(function(){$('#myModalLabel input').focus()}, 480)
+		})
+		$('#create-project').on('click', function(e){
+			e.preventDefault()
+			var $input = $("#id_file")
+            var fd = new FormData
+
+            fd.append('file', $input.prop('files')[0])
+            fd.append('name', $('#myModalLabel input').val() || 'Имя проекта')
+            fd.append('user', '{{ user }}')
+            fd.append('csrfmiddlewaretoken', '{{ csrf_token }}')
+			$.ajax({
+				type: "POST",
+				processData: false,
+            	contentType: false,
+				url: "{% url 'create_project' %}",
+				data: fd,
+				success: function(data){
+					location.reload();
+				}
+			})
+		})
+		$('.project:not(".new")').on('click', function(e){
+			window.location.href = $(this).attr("data-url");
+		})
+		$('.remove-project').on('click', function(e){
+			e.stopPropagation()
+			e.preventDefault()
+			obj = $(this)
+			id = $(this).attr("data-id")
+			data = {
+				id: id,
+				'csrfmiddlewaretoken': '{{ csrf_token }}'
+			}
+			$.ajax({
+				type: "POST",
+				url: "{% url 'remove_project' %}",
+				data: data,
+				success: function(data){
+					$(obj).parent().remove();
+				}
+			})
+		})
+	</script>
+{% endblock %}
+
+{% block end_js %}
+	<script type="text/javascript" src="{% static 'musicToNotes/js/header_menu.js' %}"></script>
+{% endblock %}
